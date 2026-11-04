@@ -21,7 +21,7 @@ public class SettingsDialog extends JDialog {
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
         JPanel content = new JPanel(new BorderLayout(0, 16));
-        content.setBackground(basic.getActiveTheme().getBackgroundBottom());
+        content.setBackground(basic.getActiveTheme().getBackgroundTop());
         content.setBorder(BorderFactory.createEmptyBorder(24, 24, 24, 24));
 
         JPanel body = new JPanel(new GridLayout(2, 1, 0, 16));

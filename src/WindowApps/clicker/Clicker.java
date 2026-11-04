@@ -12,6 +12,7 @@ public class Clicker extends Basic {
     private final GameProgress progress = new GameProgress();
     private final ProgressStorage storage = new ProgressStorage(progress);
     private Timer autoClicker;
+    private CountPanel countPanel;
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> new Clicker().start());
@@ -25,23 +26,29 @@ public class Clicker extends Basic {
     @Override
     protected void buildUI() {
         super.buildUI();
-        addParticleLayer();
 
-        output = new JLabel();
-        output.setForeground(activeTheme.getText());
-        output.setHorizontalAlignment(SwingConstants.CENTER);
-        output.setFont(ClickerTheme.COUNT_FONT);
+        countPanel = new CountPanel(this, Text.get("button.click"));
 
         panel.setBorder(BorderFactory.createEmptyBorder(
                 ClickerTheme.PANEL_PADDING.top, ClickerTheme.PANEL_PADDING.left,
                 ClickerTheme.PANEL_PADDING.bottom, ClickerTheme.PANEL_PADDING.right));
-        panel.add(output, BorderLayout.CENTER);
+        panel.add(countPanel, BorderLayout.CENTER);
         panel.add(new ControlPanel(this), BorderLayout.EAST);
+        addParticleLayer();
 
         storage.load();
         applyTheme(progress.getTheme());
         showCount();
         resume();
+        startBackgroundAnimation();
+    }
+
+    @Override
+    public void stopAnimation() {
+        if (countPanel != null) {
+            countPanel.stopAnimation();
+        }
+        super.stopAnimation();
     }
 
     @Override
@@ -49,6 +56,14 @@ public class Clicker extends Basic {
         applyTheme(theme);
         progress.setTheme(theme);
         showCount();
+        if (countPanel != null) {
+            countPanel.repaintTexts();
+        }
+    }
+
+    @Override
+    public void applyTheme(Theme theme) {
+        super.applyTheme(theme);
     }
 
     @Override
@@ -58,9 +73,20 @@ public class Clicker extends Basic {
         actions.put(EXIT, this::exitApplication);
         actions.put(ControlPanel.CLICK, () -> {
             progress.addClicks(progress.clicksPerAction());
-            spawnParticles(output);
+            spawnParticles(countPanel.getClickButton());
         });
-        actions.put(ControlPanel.SHOP, () -> new ShopDialog(this, frame, progress, this::showCount).setVisible(true));
+        actions.put(ControlPanel.SHOP, () -> {
+            // на время диалога автокликер не тикает, чтобы счётчик не дёргался под модальным окном
+            boolean wasPaused = progress.isPaused();
+            pause();
+            try {
+                new ShopDialog(this, frame, progress, this::showCount).setVisible(true);
+            } finally {
+                if (!wasPaused) {
+                    resume();
+                }
+            }
+        });
         actions.put(ControlPanel.SETTINGS, () -> new SettingsDialog(this, frame).setVisible(true));
         actions.put(ControlPanel.RESET, () -> {
             if (confirm(Text.get("reset.confirm"))) {
@@ -77,7 +103,11 @@ public class Clicker extends Basic {
 
     @Override
     protected void handle(String command) {
-        actions.getOrDefault(command, () -> output.setText(Text.format("unknown.command", command))).run();
+        actions.getOrDefault(command, () -> {
+            if (countPanel != null) {
+                countPanel.showHint(Text.format("unknown.command", command));
+            }
+        }).run();
     }
 
     private void pause() {
@@ -137,7 +167,15 @@ public class Clicker extends Basic {
     }
 
     private void showCount() {
-        output.setText(Text.format("count.clicks", progress.getClickCount()));
+        if (countPanel == null) {
+            return;
+        }
+        countPanel.showCount(progress.getClickCount());
+        countPanel.showPerPress(progress.clicksPerAction());
+        int level = progress.getAutoClickerLevel();
+        countPanel.showHint(level <= 0
+                ? Text.get("count.hint.idle")
+                : Text.format("count.hint.auto", ClickerTheme.AUTOCLICKER_DELAY_MS / level));
     }
 
     private void saveWithNotice() {

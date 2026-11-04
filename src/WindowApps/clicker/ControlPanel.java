@@ -20,9 +20,8 @@ public class ControlPanel extends JPanel {
         super(new BorderLayout());
         setOpaque(false);
 
-        JPanel buttons = new JPanel(new GridLayout(5, 1, 0, ClickerTheme.BUTTON_GAP));
+        JPanel buttons = new JPanel(new GridLayout(4, 1, 0, ClickerTheme.BUTTON_GAP));
         buttons.setOpaque(false);
-        buttons.add(ClickerTheme.createButton(basic, "button.click", CLICK));
         buttons.add(ClickerTheme.createButton(basic, "button.shop", SHOP));
         buttons.add(ClickerTheme.createButton(basic, "button.settings", SETTINGS));
         buttons.add(ClickerTheme.createButton(basic, "button.reset", RESET));
@@ -33,7 +32,24 @@ public class ControlPanel extends JPanel {
         exitPanel.setBorder(BorderFactory.createEmptyBorder(ClickerTheme.EXIT_GAP, 0, 0, 0));
         exitPanel.add(ClickerTheme.createButton(basic, "button.exit", Basic.EXIT));
 
-        add(buttons, BorderLayout.CENTER);
-        add(exitPanel, BorderLayout.SOUTH);
+        JPanel column = new JPanel(new BorderLayout());
+        column.setOpaque(false);
+        column.add(buttons, BorderLayout.CENTER);
+        column.add(exitPanel, BorderLayout.SOUTH);
+
+        JPanel card = ClickerTheme.createCard(basic.getActiveTheme(), new BorderLayout(), 18);
+        card.add(ClickerTheme.createCaption(Text.get("panel.actions"), basic.getActiveTheme()), BorderLayout.NORTH);
+        card.add(column, BorderLayout.CENTER);
+        card.setMaximumSize(new Dimension(ClickerTheme.BUTTON_WIDTH + 60, Integer.MAX_VALUE));
+
+        JPanel wrapper = new JPanel(new GridBagLayout());
+        wrapper.setOpaque(false);
+        GridBagConstraints constraints = new GridBagConstraints();
+        constraints.anchor = GridBagConstraints.CENTER;
+        constraints.weighty = 1;
+        wrapper.add(card, constraints);
+
+        setLayout(new BorderLayout());
+        add(wrapper, BorderLayout.CENTER);
     }
 }

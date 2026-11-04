@@ -31,7 +31,7 @@ public class ShopDialog extends JDialog {
         multiplierButton = makeUpgrade(basic);
 
         JPanel content = new JPanel(new BorderLayout(0, 20));
-        content.setBackground(basic.getActiveTheme().getBackgroundBottom());
+        content.setBackground(basic.getActiveTheme().getBackgroundTop());
         content.setBorder(BorderFactory.createEmptyBorder(24, 24, 24, 24));
 
         balance.setForeground(basic.getActiveTheme().getText());

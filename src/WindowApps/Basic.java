@@ -47,6 +47,15 @@ public class Basic {
      * Пересобирает окно с нуля — нужно после смены языка, т.к. тексты уже созданных компонентов не обновляются.
      */
     public void restart() {
+        stopAnimation();
+        if (panel instanceof BackgroundPanel background) {
+            background.stopAnimation();
+        }
+        if (particleTimer != null) {
+            particleTimer.stop();
+            particleTimer = null;
+        }
+        particles.clear();
         if (frame != null) {
             frame.dispose();
             frame = null;
@@ -54,6 +63,11 @@ public class Basic {
         panel = null;
         output = null;
         start();
+    }
+
+    /** Останавливает анимации подкласса перед пересборкой окна. */
+    public void stopAnimation() {
+        // по умолчанию своих анимаций нет
     }
 
     protected void buildUI() {
@@ -72,6 +86,13 @@ public class Basic {
         panel = new BackgroundPanel(this);
         panel.setLayout(new BorderLayout());
         frame.add(panel);
+    }
+
+    /** Запускает анимацию фона; вызывается после того, как окно собрано. */
+    protected void startBackgroundAnimation() {
+        if (panel instanceof BackgroundPanel background) {
+            background.startAnimation();
+        }
     }
 
     protected void addParticleLayer() {
@@ -225,6 +246,16 @@ public class Basic {
                     Math.sin(angle) * speed - 1.5,
                     3 + random.nextDouble() * 4));
         }
+        // Несколько искр-бликов: маленькие и быстро летящие звёздочки.
+        for (int i = 0; i < 5; i++) {
+            double angle = random.nextDouble() * Math.PI * 2;
+            double speed = 4 + random.nextDouble() * 5;
+            particles.add(new Particle(origin.x, origin.y,
+                    Math.cos(angle) * speed,
+                    Math.sin(angle) * speed,
+                    2 + random.nextDouble() * 2,
+                    true));
+        }
         if (particleTimer == null) {
             particleTimer = new Timer(PARTICLE_FRAME_MS, e -> tickParticles());
             particleTimer.start();
@@ -254,11 +285,45 @@ public class Basic {
 
         private static final long serialVersionUID = 1L;
 
+        /** Количество «орбов» — больших размытых пятен на фоне. */
+        private static final int ORB_COUNT = 5;
+
         private final Basic owner;
+        private final float[] orbX = new float[ORB_COUNT];
+        private final float[] orbY = new float[ORB_COUNT];
+        private final float[] orbRadius = new float[ORB_COUNT];
+        private final float[] orbPhase = new float[ORB_COUNT];
+        private final float[] orbSpeed = new float[ORB_COUNT];
+        private final Random orbRandom = new Random();
+        private Timer orbTimer;
 
         protected BackgroundPanel(Basic owner) {
             this.owner = owner;
             setOpaque(true);
+            for (int i = 0; i < ORB_COUNT; i++) {
+                orbX[i] = orbRandom.nextFloat();
+                orbY[i] = orbRandom.nextFloat();
+                orbRadius[i] = 0.18f + orbRandom.nextFloat() * 0.22f;
+                orbPhase[i] = orbRandom.nextFloat() * (float) (Math.PI * 2);
+                orbSpeed[i] = 0.0002f + orbRandom.nextFloat() * 0.0005f;
+            }
+        }
+
+        /** Запускает медленное «дыхание» фона; вызывается один раз при показе окна. */
+        void startAnimation() {
+            if (orbTimer != null) {
+                return;
+            }
+            orbTimer = new Timer(50, e -> repaint());
+            orbTimer.start();
+        }
+
+        /** Останавливает анимацию — нужно перед пересборкой окна, иначе таймер утечёт. */
+        void stopAnimation() {
+            if (orbTimer != null) {
+                orbTimer.stop();
+                orbTimer = null;
+            }
         }
 
         @Override
@@ -266,9 +331,47 @@ public class Basic {
             Theme theme = owner.activeTheme;
             Graphics2D g2 = (Graphics2D) g.create();
             g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-            g2.setPaint(new GradientPaint(0, 0, theme.getBackgroundTop(), 0, getHeight(), theme.getBackgroundBottom()));
-            g2.fillRect(0, 0, getWidth(), getHeight());
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+            int width = getWidth();
+            int height = getHeight();
+            g2.setPaint(new GradientPaint(0, 0, theme.getBackgroundTop(), 0, height, theme.getBackgroundBottom()));
+            g2.fillRect(0, 0, width, height);
+
+            // Медленно дышащие пятна акцентного цвета — фон перестаёт быть плоским.
+            long now = System.currentTimeMillis();
+            Color accent = theme.getAccent();
+            Color secondary = theme.getParticle();
+            for (int i = 0; i < ORB_COUNT; i++) {
+                float t = (float) (now * orbSpeed[i] + orbPhase[i]);
+                float cx = (orbX[i] + (float) Math.sin(t) * 0.12f) * width;
+                float cy = (orbY[i] + (float) Math.cos(t * 0.8f) * 0.10f) * height;
+                float radius = orbRadius[i] * Math.max(width, height) * (0.85f + 0.15f * (float) Math.sin(t * 1.3f));
+                Color base = i % 2 == 0 ? accent : secondary;
+                int alpha = Math.round(16f + 10f * (float) Math.sin(t * 0.9f));
+                g2.setPaint(new RadialGradientPaint(cx, cy, Math.max(1f, radius),
+                        new float[]{0f, 1f},
+                        new Color[]{withAlpha(base, Math.max(0, alpha)), withAlpha(base, 0)}));
+                g2.fillOval(Math.round(cx - radius), Math.round(cy - radius),
+                        Math.round(radius * 2), Math.round(radius * 2));
+            }
+
+            paintVignette(g2, width, height);
             g2.dispose();
+            super.paintComponent(g);
+        }
+
+        /** Легкое затемнение по краям, чтобы центр композиции смотрелся выигрышнее. */
+        private void paintVignette(Graphics2D g2, int width, int height) {
+            float radius = Math.max(width, height) * 0.78f;
+            g2.setPaint(new RadialGradientPaint(width / 2f, height / 2f, radius,
+                    new float[]{0.45f, 1f},
+                    new Color[]{new Color(0, 0, 0, 0), new Color(0, 0, 0, 90)}));
+            g2.fillRect(0, 0, width, height);
+        }
+
+        private static Color withAlpha(Color color, int alpha) {
+            return new Color(color.getRed(), color.getGreen(), color.getBlue(), Math.max(0, Math.min(255, alpha)));
         }
     }
 
@@ -287,11 +390,28 @@ public class Basic {
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             long now = System.currentTimeMillis();
             Color color = activeTheme.getParticle();
+            Color accent = activeTheme.getAccent();
             for (Particle particle : particles) {
                 float life = particle.lifeLeft(now);
-                int size = Math.max(1, Math.round((float) (particle.size * life)));
-                g2.setColor(new Color(color.getRed(), color.getGreen(), color.getBlue(), Math.round(255 * life)));
-                g2.fillOval(Math.round((float) particle.x) - size / 2, Math.round((float) particle.y) - size / 2, size, size);
+                float size = (float) (particle.size * life);
+                int centerX = Math.round((float) particle.x);
+                int centerY = Math.round((float) particle.y);
+                int alpha = Math.round(255 * life);
+                if (particle.spark) {
+                    // Искра рисуется как четырёхлучевая звезда.
+                    g2.setColor(new Color(accent.getRed(), accent.getGreen(), accent.getBlue(), alpha));
+                    g2.setStroke(new BasicStroke(Math.max(1f, size * 0.5f)));
+                    int ray = Math.max(2, Math.round(size * 2.2f));
+                    g2.drawLine(centerX - ray, centerY, centerX + ray, centerY);
+                    g2.drawLine(centerX, centerY - ray, centerX, centerY + ray);
+                    continue;
+                }
+                int radius = Math.max(1, Math.round(size));
+                // Светящееся ядро + прозрачная аура вокруг.
+                g2.setColor(new Color(color.getRed(), color.getGreen(), color.getBlue(), Math.round(alpha * 0.35f)));
+                g2.fillOval(centerX - radius, centerY - radius, radius * 2, radius * 2);
+                g2.setColor(new Color(color.getRed(), color.getGreen(), color.getBlue(), alpha));
+                g2.fillOval(centerX - radius / 2, centerY - radius / 2, radius, radius);
             }
             g2.dispose();
         }
@@ -306,20 +426,26 @@ public class Basic {
         private double dx;
         private double dy;
         private final double size;
+        private final boolean spark;
         private final long created = System.currentTimeMillis();
 
         private Particle(double x, double y, double dx, double dy, double size) {
+            this(x, y, dx, dy, size, false);
+        }
+
+        private Particle(double x, double y, double dx, double dy, double size, boolean spark) {
             this.x = x;
             this.y = y;
             this.dx = dx;
             this.dy = dy;
             this.size = size;
+            this.spark = spark;
         }
 
         private void move() {
             x += dx;
             y += dy;
-            dy += GRAVITY;
+            dy += spark ? GRAVITY * 0.4 : GRAVITY;
             dx *= 0.98;
         }
 
