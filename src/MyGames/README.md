@@ -10,17 +10,21 @@
 
 ## Структура
 
+- `Launcher.java` — точка входа: меню выбора игры.
 - `Basic_class.java` — базовый класс с общей логикой: печать заголовка, подсчёт очков, запрос на повтор игры, прощание.
 - `Check.java` — утилита для определения результата раунда в «Камень, ножницы, бумага».
 - `Game_box.java`, `Game_kmn.java`, `Game_rand.java` — конкретные реализации игр.
 
 ## Запуск
 
-Скомпилируйте и запустите нужный класс из пакета `MyGames`, например:
+Соберите пакет и запустите общий лончер — он покажет меню выбора игры:
 
-```bash
-javac MyGames/*.java
-java MyGames.Game_rand
+```powershell
+New-Item -ItemType Directory -Force -Path classes | Out-Null
+javac -encoding UTF-8 -d classes (Get-ChildItem src/MyGames/*.java)
+java -cp classes MyGames.Launcher
 ```
 
-Или используйте вашу IDE (IntelliJ IDEA, Eclipse и др.).
+Собственного метода `main` у игр нет: каждая запускает игру из конструктора, который вызывает `play()`.
+Поэтому `java MyGames.Game_rand` не работает — используйте `Launcher` (или создайте экземпляр игры
+из своего кода, как в лончере).

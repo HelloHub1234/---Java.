@@ -4,30 +4,35 @@
 
 ## Что это за проект
 
-Кликер-игра на Java Swing (`Тестовый кликкер`). Проект без системы сборки: компиляция выполняется
-напрямую через `javac`, внешних библиотек нет — только JDK (Swing/AWT) и стандартная библиотека.
+Кликер-игра на Java Swing (`Тестовый кликкер`) плюс набор консольных мини-игр. Проект без системы сборки:
+компиляция выполняется напрямую через `javac`, внешних библиотек нет — только JDK (Swing/AWT)
+и стандартная библиотека.
 
-- Точка входа приложения: `src/WindowApps/clicker/Clicker.java` (`WindowApps.clicker.Clicker`).
+- Точка входа кликера: `src/WindowApps/clicker/Clicker.java` (`WindowApps.clicker.Clicker`).
+- Точка входа мини-игр: `src/MyGames/Launcher.java` (`MyGames.Launcher`).
 - Корневой `src/Main.java` — пустая заглушка, в сборку не входит.
 
 ## Структура проекта
 
 ```
 src/WindowApps/                 # общий каркас (переиспользуется приложениями)
-  Basic.java                    # базовое окно: темы, кнопки, частицы, actions
-  Theme.java                    # enum палитр (STANDARD, CYBERPUNK, FOREST, SOLAR)
+  Basic.java                    # базовое окно: темы, кнопки, частицы, actions, restart()
+  Theme.java                    # enum палитр (STANDARD, CYBERPUNK, FOREST, SOLAR) + byName()
   Text.java                     # i18n через ResourceBundle
   ProgressSnapshot.java         # снимок состояния прогресса
+  ProgressStorage.java          # бинарное хранилище: HMAC-SHA256 + AES/GCM, clicker.sav
   messages*.properties          # локали: ru (default), en, de, es, fr
   clicker/                      # конкретное приложение «Кликер»
     Clicker.java                # UI, действия, таймер автокликера
     GameProgress.java           # бизнес-модель: клики, апгрейды, слушатели
-    ProgressStorage.java        # load/save в config.properties
+    ProgressStorage.java        # тонкая обёртка над WindowApps.ProgressStorage
     ControlPanel.java           # вертикальная панель кнопок
     ShopDialog.java             # окно магазина апгрейдов
+    SettingsDialog.java         # окно настроек: язык и тема
     ClickerTheme.java           # константы размеров, шрифтов, задержек
-config.properties               # сохранённый прогресс (создаётся при сохранении)
-.github/workflows/build.yml     # CI: сборка jar и app-image
+src/MyGames/                    # консольные мини-игры, точка входа Launcher.java
+.github/workflows/build.yml     # CI: сборка jar и app-image (только кликер)
+README.md                       # пользовательское описание проекта
 ```
 
 Тестов в репозитории нет; `src` — единственный source root (см. `untitled.iml`).
@@ -35,12 +40,19 @@ config.properties               # сохранённый прогресс (со�
 ## Сборка и запуск
 
 ```powershell
-# компиляция (Windows PowerShell)
+# кликер: компиляция
 New-Item -ItemType Directory -Force -Path classes | Out-Null
 javac -encoding UTF-8 -d classes src/WindowApps/Basic.java (Get-ChildItem src/WindowApps/clicker/*.java)
 
+# Исходники компилируются без ресурсов, но для UI нужны messages*.properties в classpath:
+Copy-Item src/WindowApps/messages*.properties classes/WindowApps/
+
 # запуск
 java -cp classes WindowApps.clicker.Clicker
+
+# мини-игры
+javac -encoding UTF-8 -d classes (Get-ChildItem src/MyGames/*.java)
+java -cp classes MyGames.Launcher
 ```
 
 `-encoding UTF-8` обязателен: исходники и ресурсы содержат кириллицу.
@@ -50,6 +62,7 @@ java -cp classes WindowApps.clicker.Clicker
 Полный пайплайн (в CI, `windows-latest`, JDK 21): `javac` → `jar --create --main-class WindowApps.clicker.Clicker`
 → `jpackage --type app-image` → артефакт `dist/Clicker-windows.zip`. Тег `v*` дополнительно
 публикует релиз на GitHub. Локальную сборку удобнее запускать через конфигурации IDE.
+`src/MyGames` в CI не собирается — только вручную или из IDE.
 
 ## Стиль кода и соглашения
 
@@ -65,9 +78,12 @@ java -cp classes WindowApps.clicker.Clicker
   `Map<String, Runnable> actions` в `initActions()`; обработка незнакомой команды уже есть в `handle(...)`.
 - Вся работа со Swing — только в EDT (`SwingUtilities.invokeLater`).
 - Изменяйте `GameProgress` через его методы (они выставляют `markDirty()` и вызывают слушателей);
-  UI обновляется подпиской `progress.addListener(this::showCount)`.
-- Файл прогресса — `config.properties` в рабочем каталоге; при добавлении поля обновите
-  ключи в `ProgressStorage` и значения по умолчанию в `load()`.
+  UI обновляется подпиской `progress.addListener(...)` — счётчик и перезапуск автокликера подписаны там же.
+- Прогресс лежит в бинарном `clicker.sav` в `%APPDATA%\Clicker` (на не-Windows — `~/.clicker`),
+  логика — в `WindowApps.ProgressStorage`. При добавлении поля обновите `ProgressRecord.encode()` /
+  `decode()` и обработку в `load()`. Старый `config.properties` — только легаси-миграция, не воскрешайте его.
+- Язык меняется только вместе с пересборкой окна (`Basic.restart()`): тексты уже созданных компонентов
+  не обновляются. Тема применяется живьём через `Basic.setTheme(...)`.
 
 ## VCS: коммиты и pull request
 
@@ -76,4 +92,5 @@ java -cp classes WindowApps.clicker.Clicker
   (`добавить магазин апгрейдов`, `исправить сохранение прогресса`).
 - PR: опишите изменение и затронутые файлы, приложите скриншот UI до/после для визуальных правок,
   убедитесь, что CI-джоба `build-clicker` зелёная.
-- Не коммитьте `config.properties` с локальным прогрессом, `out/`, `classes/`, `dist/`.
+- Не коммитьте `config.properties` и `clicker.sav` с локальным прогрессом, `out/`, `classes/`, `dist/`,
+  `.idea/`, `.aiforopenide/`, `.neo/`, `.veai/`.
