@@ -9,35 +9,58 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.nio.file.attribute.AclEntry;
+import java.nio.file.attribute.AclEntryPermission;
+import java.nio.file.attribute.AclEntryType;
+import java.nio.file.attribute.AclFileAttributeView;
 import java.nio.file.attribute.DosFileAttributeView;
+import java.nio.file.attribute.PosixFilePermission;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Set;
 import javax.crypto.Cipher;
 import javax.crypto.Mac;
 import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
 /**
- * Бинарное хранилище прогресса: файл подписи (HMAC-SHA256) + AES/GCM.
+ * Бинарное хранилище прогресса: AES/GCM-шифрование + HMAC-SHA256 поверх конверта.
  * Лежит в %APPDATA%\Clicker\clicker.sav (или ~/.clicker на не-Windows),
  * старый config.properties читается один раз как миграция.
+ *
+ * <p>Файл дополнительно закрывается правами ОС: на Windows из ACL убираются записи всех,
+ * кроме владельца и SYSTEM, на POSIX — выставляются права 600. Это защищает от случайного
+ * или небрежного редактирования; от владельца процесса данные, разумеется, не защищены:
+ * ключ лежит в самом приложении.
  */
 public class ProgressStorage {
 
-    private static final byte[] FORMAT_MAGIC = {'C', 'L', 'K', '2'};
-    private static final byte FORMAT_VERSION = 2;
+    private static final byte[] FORMAT_MAGIC = {'C', 'L', 'K', '3'};
+    /** Версия 3: исправлена длина AES-ключа (в v2 ключ был 21 байт и шифрование падало). */
+    private static final byte FORMAT_VERSION = 3;
+    private static final byte LEGACY_FORMAT_VERSION = 2;
     private static final int MAC_LENGTH = 32;
     private static final int NONCE_LENGTH = 12;
     private static final int GCM_TAG_BITS = 128;
     private static final int CHECKSUM_LENGTH = Long.BYTES;
-    private static final String SIGNING_KEY = "Clicker::v2::HKq7w2LmTr9xVb4n";
-    private static final String CIPHER_KEY = "ChlrKey::9fAs2Kd81PqZ";
+    private static final int AES_KEY_BYTES = 32;
+    private static final String SIGNING_SECRET = "Clicker::v3::HKq7w2LmTr9xVb4nQz8Yt";
+    private static final String CIPHER_SECRET = "ChlrKey::v3::9fAs2Kd81PqZx7Lm";
+    /** Ключ старого формата — только чтобы прочитать progress.sav, созданный версией 2. */
+    private static final String LEGACY_CIPHER_SECRET = "ChlrKey::9fAs2Kd81PqZ";
     private static final String LEGACY_FILE = "config.properties";
     private static final String STORE_FILE = "clicker.sav";
 
     private final GameProgress progress;
     private final Path storePath = resolveStorePath();
     private final SecureRandom random = new SecureRandom();
+
+    private final SecretKeySpec signingKey = new SecretKeySpec(deriveKey(SIGNING_SECRET), "HmacSHA256");
+    private final SecretKeySpec cipherKey = new SecretKeySpec(deriveKey(CIPHER_SECRET), "AES");
 
     public ProgressStorage(GameProgress progress) {
         this.progress = progress;
@@ -71,7 +94,7 @@ public class ProgressStorage {
         boolean corrupted = false;
         ProgressRecord record = data == null ? null : read(data);
         if (record == null) {
-            // Файла нет — возможно, остался прогресс старого формата.
+            // Файла нет — возможно, остался прогресс старого текстового формата.
             record = data == null ? readLegacy() : null;
             corrupted = data != null;
         }
@@ -118,7 +141,7 @@ public class ProgressStorage {
         byte[] payload = record.encode();
         byte[] nonce = new byte[NONCE_LENGTH];
         random.nextBytes(nonce);
-        byte[] encrypted = encrypt(payload, nonce);
+        byte[] encrypted = encrypt(payload, nonce, cipherKey);
 
         ByteBuffer body = ByteBuffer.allocate(FORMAT_MAGIC.length + 1 + NONCE_LENGTH + encrypted.length);
         body.put(FORMAT_MAGIC).put(FORMAT_VERSION).put(nonce).put(encrypted);
@@ -130,9 +153,10 @@ public class ProgressStorage {
         Path parent = storePath.getParent();
         if (parent != null) {
             Files.createDirectories(parent);
+            restrictDirectory(parent);
         }
         Files.write(storePath, file.array());
-        hide(storePath);
+        restrictFile(storePath);
         progress.markSaved();
     }
 
@@ -150,7 +174,13 @@ public class ProgressStorage {
         ByteBuffer buffer = ByteBuffer.wrap(signed);
         byte[] magic = new byte[FORMAT_MAGIC.length];
         buffer.get(magic);
-        if (!java.util.Arrays.equals(magic, FORMAT_MAGIC) || buffer.get() != FORMAT_VERSION) {
+        boolean magicMatches = magic[0] == FORMAT_MAGIC[0] && magic[1] == FORMAT_MAGIC[1]
+                && magic[2] == FORMAT_MAGIC[2];
+        byte version = buffer.get();
+        if (!magicMatches || (version != FORMAT_VERSION && version != LEGACY_FORMAT_VERSION)) {
+            return null;
+        }
+        if (version == LEGACY_FORMAT_VERSION && magic[3] != '2') {
             return null;
         }
 
@@ -159,11 +189,23 @@ public class ProgressStorage {
         byte[] encrypted = new byte[buffer.remaining()];
         buffer.get(encrypted);
 
+        SecretKeySpec key = version == FORMAT_VERSION
+                ? cipherKey
+                : new SecretKeySpec(legacyKeyBytes(), "AES");
         try {
-            return ProgressRecord.decode(decrypt(encrypted, nonce));
+            return ProgressRecord.decode(decrypt(encrypted, nonce, key));
         } catch (RuntimeException e) {
             return null;
         }
+    }
+
+    /**
+     * Ключ старого формата был некорректен (21 байт), поэтому расширяем его до допустимой длины AES.
+     * Теоретически такой файл мог создать только патченный/исправленный билд v2.
+     */
+    private static byte[] legacyKeyBytes() {
+        byte[] raw = deriveKey(LEGACY_CIPHER_SECRET);
+        return java.util.Arrays.copyOf(raw, 24);
     }
 
     private ProgressRecord readLegacy() {
@@ -211,7 +253,19 @@ public class ProgressStorage {
         }
     }
 
-    private void hide(Path path) {
+    // --- защита файла средствами ОС -------------------------------------------------------------
+
+    /** Оставляет владельцу полный доступ, всем остальным — никакого. */
+    private static void restrictFile(Path path) {
+        hide(path);
+        dropInheritance(path);
+    }
+
+    private static void restrictDirectory(Path path) {
+        restrictFile(path);
+    }
+
+    private static void hide(Path path) {
         try {
             DosFileAttributeView view = Files.getFileAttributeView(path, DosFileAttributeView.class);
             if (view != null) {
@@ -223,44 +277,142 @@ public class ProgressStorage {
         }
     }
 
-    private Path resolveStorePath() {
-        String appData = System.getenv("APPDATA");
-        Path base = (appData == null || appData.isBlank())
-                ? Paths.get(System.getProperty("user.home"), ".clicker")
-                : Paths.get(appData, "Clicker");
-        return base.resolve(STORE_FILE);
+    private static void dropInheritance(Path path) {
+        try {
+            AclFileAttributeView acl = Files.getFileAttributeView(path, AclFileAttributeView.class);
+            if (acl != null) {
+                lockDownAcl(acl);
+                return;
+            }
+        } catch (IOException | RuntimeException ignored) {
+            // файловая система без ACL (FAT/NTFS без прав) — пробуем POSIX ниже
+        }
+        try {
+            Set<PosixFilePermission> ownerOnly = PosixFilePermissions.fromString("rw-------");
+            Files.setPosixFilePermissions(path, ownerOnly);
+        } catch (IOException | UnsupportedOperationException ignored) {
+            // ни ACL, ни POSIX — ограничение прав недоступно, оставляем как есть
+        }
     }
 
-    private static byte[] hmac(byte[] data) {
+    private static void lockDownAcl(AclFileAttributeView acl) throws IOException {
+        List<AclEntry> entries = acl.getAcl();
+        if (entries.isEmpty()) {
+            return;
+        }
+        String current = currentUser();
+
+        Set<AclEntryPermission> allowed = EnumSet.of(
+                AclEntryPermission.READ_DATA, AclEntryPermission.WRITE_DATA,
+                AclEntryPermission.APPEND_DATA, AclEntryPermission.READ_NAMED_ATTRS,
+                AclEntryPermission.WRITE_NAMED_ATTRS, AclEntryPermission.EXECUTE,
+                AclEntryPermission.DELETE_CHILD, AclEntryPermission.READ_ATTRIBUTES,
+                AclEntryPermission.WRITE_ATTRIBUTES, AclEntryPermission.DELETE,
+                AclEntryPermission.READ_ACL, AclEntryPermission.WRITE_ACL,
+                AclEntryPermission.WRITE_OWNER, AclEntryPermission.SYNCHRONIZE);
+
+        List<AclEntry> reset = new java.util.ArrayList<>();
+        boolean ownerAdded = false;
+        Set<String> seen = new java.util.HashSet<>();
+        for (AclEntry entry : entries) {
+            String principal = entry.principal().getName();
+            if (entry.type() != AclEntryType.ALLOW || !seen.add(principal)) {
+                continue;
+            }
+            boolean self = current != null && current.equalsIgnoreCase(principal);
+            if (!self && !isSystemPrincipal(principal)) {
+                // Все прочие (Пользователи, Authenticated Users, Everyone) теряют доступ.
+                continue;
+            }
+            // Наследование снимаем: только явные записи, иначе права вернутся из родителя.
+            reset.add(AclEntry.newBuilder(entry)
+                    .setType(AclEntryType.ALLOW)
+                    .setPermissions(self ? allowed : EnumSet.of(AclEntryPermission.READ_DATA,
+                            AclEntryPermission.READ_ATTRIBUTES, AclEntryPermission.READ_ACL,
+                            AclEntryPermission.SYNCHRONIZE))
+                    .setFlags()
+                    .build());
+            ownerAdded |= self;
+        }
+
+        if (!ownerAdded && current != null) {
+            // Текущего пользователя не было в ACL (например, файл от другой учётной записи) —
+            // без доступа игра не сможет сохраняться, поэтому лучше оставить права как есть.
+            return;
+        }
+        acl.setAcl(reset);
+    }
+
+    /** Имя текущего пользователя Windows; если узнать не удалось — null (тогда ACL не трогаем). */
+    private static String currentUser() {
+        try {
+            return java.nio.file.Files.getOwner(Paths.get(".")).getName();
+        } catch (IOException | RuntimeException e) {
+            return null;
+        }
+    }
+
+    private static boolean isSystemPrincipal(String name) {
+        // Имена встроенных групп локализованы (BUILTIN\\Система, BUILTIN\\Администраторы),
+        // поэтому проверяем все встречающиеся варианты окончаний.
+        return name.endsWith("\\SYSTEM") || name.equals("SYSTEM")
+                || name.endsWith("\\Система") || name.endsWith("\\СИСТЕМА")
+                || name.endsWith("\\Администраторы") || name.endsWith("\\Administrators")
+                || name.endsWith("\\Администратор") || name.endsWith("\\Administrator");
+    }
+
+    // --- криптография ---------------------------------------------------------------------------
+
+    private byte[] hmac(byte[] data) {
         try {
             Mac mac = Mac.getInstance("HmacSHA256");
-            mac.init(new SecretKeySpec(SIGNING_KEY.getBytes(StandardCharsets.UTF_8), "HmacSHA256"));
+            mac.init(signingKey);
             return mac.doFinal(data);
         } catch (Exception e) {
             throw new IllegalStateException(e);
         }
     }
 
-    private static byte[] encrypt(byte[] payload, byte[] nonce) {
+    private static byte[] encrypt(byte[] payload, byte[] nonce, SecretKeySpec key) {
         try {
             Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
-            cipher.init(Cipher.ENCRYPT_MODE, new SecretKeySpec(CIPHER_KEY.getBytes(StandardCharsets.UTF_8), "AES"),
-                    new GCMParameterSpec(GCM_TAG_BITS, nonce));
+            cipher.init(Cipher.ENCRYPT_MODE, key, new GCMParameterSpec(GCM_TAG_BITS, nonce));
             return cipher.doFinal(payload);
         } catch (Exception e) {
             throw new IllegalStateException(e);
         }
     }
 
-    private static byte[] decrypt(byte[] encrypted, byte[] nonce) {
+    private static byte[] decrypt(byte[] encrypted, byte[] nonce, SecretKeySpec key) {
         try {
             Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
-            cipher.init(Cipher.DECRYPT_MODE, new SecretKeySpec(CIPHER_KEY.getBytes(StandardCharsets.UTF_8), "AES"),
-                    new GCMParameterSpec(GCM_TAG_BITS, nonce));
+            cipher.init(Cipher.DECRYPT_MODE, key, new GCMParameterSpec(GCM_TAG_BITS, nonce));
             return cipher.doFinal(encrypted);
         } catch (Exception e) {
             throw new IllegalArgumentException(e);
         }
+    }
+
+    /**
+     * Растягивает пароль произвольной длины в ключ нужного размера через SHA-256.
+     * Так длина секрета больше не может сломать AES (в версии 2 ключ был 21 байт
+     * и AES/GCM падал с {@link java.security.InvalidKeyException}).
+     */
+    private static byte[] deriveKey(String secret) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            return java.util.Arrays.copyOf(digest.digest(secret.getBytes(StandardCharsets.UTF_8)), AES_KEY_BYTES);
+        } catch (NoSuchAlgorithmException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    private Path resolveStorePath() {
+        String appData = System.getenv("APPDATA");
+        Path base = (appData == null || appData.isBlank())
+                ? Paths.get(System.getProperty("user.home"), ".clicker")
+                : Paths.get(appData, "Clicker");
+        return base.resolve(STORE_FILE);
     }
 
     private record ProgressRecord(int clicks, int clicksPerPress, int autoClickerLevel, int multiplierLevel,
