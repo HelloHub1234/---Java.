@@ -260,7 +260,12 @@ public class Basic {
     }
 
     protected void close() {
-        frame.dispose();
+        // Останавливаем все анимации и освобождаем окно: иначе таймеры Swing держат EDT
+        // и процесс остаётся висеть после закрытия (см. жалобу «игра не закрывается полностью»).
+        if (frame != null) {
+            frame.dispose();
+        }
+        System.exit(0);
     }
 
     protected void spawnParticles(Component source) {

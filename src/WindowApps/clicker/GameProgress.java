@@ -116,7 +116,7 @@ public class GameProgress {
     }
 
     public boolean buyClicksPerPress() {
-        if (paused || !spend(clicksPerPressCost())) {
+        if (!spend(clicksPerPressCost())) {
             return false;
         }
         clicksPerPress++;
@@ -125,7 +125,7 @@ public class GameProgress {
     }
 
     public boolean buyAutoClicker() {
-        if (paused || !spend(autoClickerCost())) {
+        if (!spend(autoClickerCost())) {
             return false;
         }
         autoClickerLevel++;
@@ -134,7 +134,7 @@ public class GameProgress {
     }
 
     public boolean buyMultiplier() {
-        if (paused || !spend(multiplierCost())) {
+        if (!spend(multiplierCost())) {
             return false;
         }
         multiplierLevel++;
