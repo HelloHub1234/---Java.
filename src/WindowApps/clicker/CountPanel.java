@@ -16,8 +16,9 @@ public class CountPanel extends JPanel {
 
     private static final long serialVersionUID = 1L;
 
+    /** ~60 кадров в секунду и мягкое затухание вместо резкого скачка. */
     private static final int PULSE_FRAME_MS = 16;
-    private static final int PULSE_DURATION_MS = 180;
+    private static final int PULSE_DURATION_MS = 320;
 
     private final Basic basic;
     private final CountLabel countLabel = new CountLabel();
@@ -26,7 +27,7 @@ public class CountPanel extends JPanel {
     private final JButton clickButton;
     private final Timer pulseTimer;
 
-    public CountPanel(Basic basic, String clickButtonText) {
+    public CountPanel(Basic basic, String clickButtonText, String clickCommand) {
         this.basic = basic;
         setOpaque(false);
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
@@ -36,7 +37,7 @@ public class CountPanel extends JPanel {
         perPressLabel.setFont(ClickerTheme.PER_PRESS_FONT);
         hintLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        clickButton = ClickerTheme.createClickButton(basic, clickButtonText);
+        clickButton = ClickerTheme.createClickButton(basic, clickButtonText, clickCommand);
         JPanel buttonRow = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
         buttonRow.setOpaque(false);
         buttonRow.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -137,13 +138,18 @@ public class CountPanel extends JPanel {
             repaint();
         }
 
+        /**
+         * Мягкий толчок: подъём по easeOutCubic и плавное возвращение.
+         * Держим пик коротким, чтобы цифры не «прыгали» при быстрых кликах.
+         */
         private float scale() {
             if (!pulsing) {
                 return 1f;
             }
             long elapsed = System.currentTimeMillis() - pulseStart;
             float progress = Math.min(1f, elapsed / (float) PULSE_DURATION_MS);
-            return 1f + 0.14f * (1f - progress) * (1f - progress);
+            float wave = (float) Math.sin(Math.PI * progress);
+            return 1f + 0.10f * wave * (1f - 0.35f * progress);
         }
 
         @Override
@@ -164,6 +170,7 @@ public class CountPanel extends JPanel {
             Graphics2D g2 = (Graphics2D) g.create();
             g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE);
 
             Theme theme = basic.getActiveTheme();
             float scale = scale();

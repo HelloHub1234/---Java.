@@ -27,7 +27,7 @@ public class Clicker extends Basic {
     protected void buildUI() {
         super.buildUI();
 
-        countPanel = new CountPanel(this, Text.get("button.click"));
+        countPanel = new CountPanel(this, Text.get("button.click"), ControlPanel.CLICK);
 
         panel.setBorder(BorderFactory.createEmptyBorder(
                 ClickerTheme.PANEL_PADDING.top, ClickerTheme.PANEL_PADDING.left,

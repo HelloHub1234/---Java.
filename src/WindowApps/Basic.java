@@ -219,6 +219,11 @@ public class Basic {
         return createButton(text, null);
     }
 
+    /** Выполняет команду из {@link #actions}; используется кнопками с собственной отрисовкой. */
+    public void runCommand(String command) {
+        handle(command);
+    }
+
     public JButton createButton(String text, String command) {
         JButton button = new RoundedButton(this, text);
         button.setForeground(activeTheme.getText());
@@ -571,28 +576,60 @@ public class Basic {
             Theme theme = owner.activeTheme;
             Graphics2D g2 = (Graphics2D) g.create();
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE);
 
             int width = getWidth();
             int height = getHeight();
-            if (getModel().isPressed()) {
-                g2.setColor(theme.getAccent().darker());
-            } else if (getModel().isRollover()) {
-                g2.setColor(theme.getButtonHover());
-            } else if (highlighted) {
-                g2.setColor(theme.getAffordable());
-            } else {
-                g2.setColor(theme.getButton());
+            if (width <= 0 || height <= 0) {
+                g2.dispose();
+                return;
             }
+
+            // Кнопка должна читаться на фоне любой темы: берём подложку цвета текста темы
+            // и делаем её полупрозрачной, а сверху добавляем тонкую акцентную кромку.
+            Color base;
+            if (getModel().isPressed()) {
+                base = theme.getAccent();
+            } else if (getModel().isRollover()) {
+                base = theme.getButtonHover();
+            } else if (highlighted) {
+                base = theme.getAffordable();
+            } else {
+                base = theme.getButton();
+            }
+
+            // Светлая прослойка отделяет кнопку от фона даже в тёмных темах.
+            Color veil = theme.getText();
+            int veilAlpha = getModel().isPressed() ? 0 : (getModel().isRollover() ? 46 : 30);
+            Color fill = veilAlpha == 0 ? base : blend(base, veil, veilAlpha);
+
+            g2.setColor(fill);
             g2.fillRoundRect(0, 0, width, height, ARC, ARC);
 
-            if (getModel().isRollover() || highlighted) {
-                g2.setColor(highlighted ? theme.getAffordable().brighter() : theme.getAccentHover());
-                g2.setStroke(new BasicStroke(2f));
-                g2.drawRoundRect(1, 1, width - 3, height - 3, ARC, ARC);
-            }
+            // Внутренний свет сверху — объём без «тяжёлых» градиентов.
+            g2.setPaint(new GradientPaint(0, 0, new Color(255, 255, 255, 34),
+                    0, height * 0.6f, new Color(255, 255, 255, 0)));
+            g2.fillRoundRect(0, 0, width, height, ARC, ARC);
+
+            // Кромка: акцентная при наведении/доступности, спокойная в остальных случаях.
+            Color border = (getModel().isRollover() || getModel().isPressed())
+                    ? theme.getAccentHover()
+                    : (highlighted ? theme.getAffordable().brighter() : blend(base, veil, 70));
+            g2.setColor(border);
+            g2.setStroke(new BasicStroke((getModel().isRollover() || highlighted) ? 2f : 1.2f));
+            g2.drawRoundRect(1, 1, width - 3, height - 3, ARC, ARC);
             g2.dispose();
 
             super.paintComponent(g);
+        }
+
+        /** Смешивает два цвета с заданной прозрачностью верхнего (0–255). */
+        private static Color blend(Color bottom, Color top, int alpha) {
+            float a = Math.max(0, Math.min(255, alpha)) / 255f;
+            return new Color(
+                    Math.round(bottom.getRed() + (top.getRed() - bottom.getRed()) * a),
+                    Math.round(bottom.getGreen() + (top.getGreen() - bottom.getGreen()) * a),
+                    Math.round(bottom.getBlue() + (top.getBlue() - bottom.getBlue()) * a));
         }
     }
 }

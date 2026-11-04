@@ -51,11 +51,16 @@ public final class ClickerTheme {
         return button;
     }
 
-    /** Большая кнопка «Кликнуть» с собственным оформлением (градиент, блик, свечение). */
-    public static ClickButton createClickButton(Basic basic, String text) {
+    /**
+     * Большая кнопка «Кликнуть» с собственным оформлением (градиент, блик, свечение).
+     * Команда обязательна: без неё {@code handle} получает пустую строку и действие не находится.
+     */
+    public static ClickButton createClickButton(Basic basic, String text, String command) {
         ClickButton button = new ClickButton(basic, text);
         button.setFont(CLICK_FONT);
         button.setPreferredSize(CLICK_BUTTON_SIZE);
+        button.setActionCommand(command);
+        button.addActionListener(e -> basic.runCommand(command));
         return button;
     }
 
