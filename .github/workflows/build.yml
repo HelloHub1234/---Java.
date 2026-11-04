@@ -1,0 +1,55 @@
+name: build-clicker
+
+on:
+  push:
+    branches: [main, master]
+    tags: ["v*"]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: pwsh
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: none
+
+      - name: Compile sources
+        run: |
+          New-Item -ItemType Directory -Force -Path classes | Out-Null
+          javac -encoding UTF-8 -d classes src/WindowApps/Basic.java (Get-ChildItem src/WindowApps/clicker/*.java)
+
+      - name: Build runnable jar
+        run: |
+          New-Item -ItemType Directory -Force -Path dist | Out-Null
+          jar --create --file dist/clicker.jar --main-class WindowApps.clicker.Clicker -C classes WindowApps
+
+      - name: Build app-image with bundled JRE
+        run: |
+          jpackage --type app-image --name Clicker --input classes --main-jar clicker.jar --main-class WindowApps.clicker.Clicker --dest dist/Clicker --java-options "-Dfile.encoding=UTF-8"
+          Compress-Archive -Path dist/Clicker -DestinationPath dist/Clicker-windows.zip -Force
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Clicker-windows
+          path: |
+            dist/Clicker-windows.zip
+            dist/clicker.jar
+          if-no-files-found: error
+
+      - name: Attach artifacts to release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/Clicker-windows.zip
+            dist/clicker.jar
