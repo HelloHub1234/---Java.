@@ -57,13 +57,9 @@ public class Clicker extends Basic {
         progress.setTheme(theme);
         showCount();
         if (countPanel != null) {
+            countPanel.updateTheme();
             countPanel.repaintTexts();
         }
-    }
-
-    @Override
-    public void applyTheme(Theme theme) {
-        super.applyTheme(theme);
     }
 
     @Override

@@ -54,6 +54,7 @@ public class CountPanel extends JPanel {
 
         pulseTimer = new Timer(PULSE_FRAME_MS, e -> countLabel.advancePulse());
         pulseTimer.setRepeats(true);
+        updateTheme();
     }
 
     public JButton getClickButton() {
@@ -90,6 +91,18 @@ public class CountPanel extends JPanel {
         perPressLabel.repaint();
         hintLabel.repaint();
         countLabel.repaint();
+    }
+
+    /** Переприменяет цвета темы к подписям, которые не умеют смотреть в тему сами. */
+    public void updateTheme() {
+        perPressLabel.setForeground(theme().getText());
+        Color hint = theme().getText();
+        hintLabel.setForeground(new Color(hint.getRed(), hint.getGreen(), hint.getBlue(), 160));
+        repaint();
+    }
+
+    private Theme theme() {
+        return basic.getActiveTheme();
     }
 
     /** Текст счётчика с мягким свечением акцентного цвета и короткой анимацией «толчка». */

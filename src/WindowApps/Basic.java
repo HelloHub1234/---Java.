@@ -7,8 +7,10 @@ import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.geom.RoundRectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -96,10 +98,16 @@ public class Basic {
     }
 
     protected void addParticleLayer() {
+        // Отдельный компонент-слой больше не нужен: частицы рисуются в BackgroundPanel.paintChildren,
+        // т.е. всегда поверх содержимого и без участия в BorderLayout (раньше он ломал раскладку).
         if (panel == null) {
             throw new IllegalStateException("addParticleLayer() must be called after super.buildUI()");
         }
-        panel.add(new ParticleLayer(), 0);
+    }
+
+    /** Пересортировывает компоненты так, чтобы слой частиц всегда рисовался последним. */
+    private void keepParticleLayerOnTop() {
+        // Слой рисуется отдельно поверх содержимого панели, пересортировка z-order не нужна.
     }
 
     public Theme getActiveTheme() {
@@ -107,15 +115,30 @@ public class Basic {
     }
 
     public void applyTheme(Theme theme) {
-        if (theme == null || theme == activeTheme) {
+        if (theme == null) {
             return;
         }
+        // Даже если тема та же — перерисовать всё: цвета мог подхватить только что собранный UI.
         activeTheme = theme;
         restyle(panel);
+        keepParticleLayerOnTop();
         if (frame != null) {
             frame.setIconImages(createAppIcons()); // пересоздать иконки под новую тему
         }
-        panel.repaint();
+        if (panel != null) {
+            panel.repaint();
+            repaintDeep(panel);
+        }
+    }
+
+    /** Принудительная перерисовка всего дерева: кастомные компоненты сами смотрят в activeTheme. */
+    private void repaintDeep(Container container) {
+        for (Component component : container.getComponents()) {
+            component.repaint();
+            if (component instanceof Container child) {
+                repaintDeep(child);
+            }
+        }
     }
 
     /** Применяет тему к текущему окну; подклассы могут дополнительно сохранить выбор. */
@@ -210,11 +233,11 @@ public class Basic {
     }
 
     protected JComponent particleLayer() {
-        for (Component component : panel.getComponents()) {
-            if (component instanceof ParticleLayer layer) {
-                return layer;
-            }
-        }
+        return null;
+    }
+
+    private ParticleLayer findParticleLayer() {
+        // Слой частиц больше не является отдельным компонентом.
         return null;
     }
 
@@ -275,9 +298,8 @@ public class Basic {
             particleTimer.stop();
             particleTimer = null;
         }
-        JComponent layer = particleLayer();
-        if (layer != null) {
-            layer.repaint();
+        if (panel != null) {
+            panel.repaint();
         }
     }
 
@@ -318,11 +340,29 @@ public class Basic {
             orbTimer.start();
         }
 
-        /** Останавливает анимацию — нужно перед пересборкой окна, иначе таймер утечёт. */
+        /** Останавливает анимацию фона и слоя частиц — нужно перед пересборкой окна. */
         void stopAnimation() {
             if (orbTimer != null) {
                 orbTimer.stop();
                 orbTimer = null;
+            }
+        }
+
+        /**
+         * Слой частиц рисуется здесь, уже после всех детей панели,
+         * поэтому не занимает места в BorderLayout и не может сломать раскладку.
+         */
+        @Override
+        public void paintChildren(Graphics g) {
+            super.paintChildren(g);
+            if (owner.particles.isEmpty()) {
+                return;
+            }
+            Graphics2D g2 = (Graphics2D) g.create();
+            try {
+                owner.paintParticles(g2);
+            } finally {
+                g2.dispose();
             }
         }
 
@@ -358,7 +398,8 @@ public class Basic {
 
             paintVignette(g2, width, height);
             g2.dispose();
-            super.paintComponent(g);
+            // super.paintComponent здесь НЕ вызывается: JPanel залил бы свой ColorUIResource-фон
+            // поверх градиента, и тема перестала бы быть видна вообще.
         }
 
         /** Легкое затемнение по краям, чтобы центр композиции смотрелся выигрышнее. */
@@ -382,6 +423,20 @@ public class Basic {
         protected ParticleLayer() {
             setOpaque(false);
             setFocusable(false);
+            // Слой не должен быть «главным» компонентом: он либо лежит поверх (размер = размер панели),
+            // либо ничего не рисует и не участвует в раскладке.
+            setAlignmentX(0f);
+            setAlignmentY(0f);
+        }
+
+        @Override
+        public Dimension getPreferredSize() {
+            return new Dimension(0, 0);
+        }
+
+        @Override
+        public Dimension getMinimumSize() {
+            return new Dimension(0, 0);
         }
 
         @Override
@@ -415,6 +470,36 @@ public class Basic {
             }
             g2.dispose();
         }
+    }
+
+    /** Рисует частицы в координатах панели; вызывается из {@link BackgroundPanel#paintChildren}. */
+    void paintParticles(Graphics2D g2) {
+        Graphics2D copy = (Graphics2D) g2.create();
+        copy.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        long now = System.currentTimeMillis();
+        Color color = activeTheme.getParticle();
+        Color accent = activeTheme.getAccent();
+        for (Particle particle : particles) {
+            float life = particle.lifeLeft(now);
+            float size = (float) (particle.size * life);
+            int centerX = Math.round((float) particle.x);
+            int centerY = Math.round((float) particle.y);
+            int alpha = Math.round(255 * life);
+            if (particle.spark) {
+                copy.setColor(new Color(accent.getRed(), accent.getGreen(), accent.getBlue(), alpha));
+                copy.setStroke(new BasicStroke(Math.max(1f, size * 0.5f)));
+                int ray = Math.max(2, Math.round(size * 2.2f));
+                copy.drawLine(centerX - ray, centerY, centerX + ray, centerY);
+                copy.drawLine(centerX, centerY - ray, centerX, centerY + ray);
+                continue;
+            }
+            int radius = Math.max(1, Math.round(size));
+            copy.setColor(new Color(color.getRed(), color.getGreen(), color.getBlue(), Math.round(alpha * 0.35f)));
+            copy.fillOval(centerX - radius, centerY - radius, radius * 2, radius * 2);
+            copy.setColor(new Color(color.getRed(), color.getGreen(), color.getBlue(), alpha));
+            copy.fillOval(centerX - radius / 2, centerY - radius / 2, radius, radius);
+        }
+        copy.dispose();
     }
 
     protected static class Particle {
