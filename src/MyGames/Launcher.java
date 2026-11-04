@@ -1,6 +1,9 @@
 package MyGames;
 
-import java.util.Scanner;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Точка входа пакета MyGames: выбирает, какую из консольных игр запустить.
@@ -12,24 +15,33 @@ public class Launcher {
     }
 
     public static void main(String[] args) {
-        try (Scanner scanner = new Scanner(System.in)) {
-            while (true) {
-                printMenu();
-                if (!scanner.hasNextLine()) {
+        // Scanner не закрываем: System.in не должен закрываться, а BufferedReader после игр
+        // (со своим Scanner(System.in)) при закрытии утащил бы за собой стандартный ввод
+        BufferedReader in = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.UTF_8));
+        while (true) {
+            printMenu();
+            String choice = readLine(in);
+            if (choice == null) {
+                return;
+            }
+            switch (choice.trim()) {
+                case "1" -> start(new Game_rand(), in);
+                case "2" -> start(new Game_kmn(), in);
+                case "3" -> start(new Game_box(), in);
+                case "0", "q", "exit" -> {
+                    System.out.println("До встречи!");
                     return;
                 }
-                String choice = scanner.nextLine().trim();
-                switch (choice) {
-                    case "1" -> start(new Game_rand());
-                    case "2" -> start(new Game_kmn());
-                    case "3" -> start(new Game_box());
-                    case "0", "q", "exit" -> {
-                        System.out.println("До встречи!");
-                        return;
-                    }
-                    default -> System.out.println("Нет такой игры: " + choice);
-                }
+                default -> System.out.println("Нет такой игры: " + choice);
             }
+        }
+    }
+
+    private static String readLine(BufferedReader in) {
+        try {
+            return in.readLine();
+        } catch (IOException e) {
+            return null;
         }
     }
 
@@ -46,9 +58,23 @@ public class Launcher {
         System.out.print("Выбор: ");
     }
 
-    private static void start(Basic_class game) {
-        // игра уже отработала в конструкторе, здесь только пауза перед возвратом в меню
-        System.out.println();
-        System.out.println("Возврат в меню...");
+    private static void start(Basic_class game, BufferedReader in) {
+        // игра уже отработала в конструкторе; предлагаем новую серию без выхода в меню
+        while (true) {
+            System.out.println();
+            System.out.print("Начать новую серию? (да/нет): ");
+            String answer = readLine(in);
+            if (answer == null || !isYes(answer)) {
+                System.out.println();
+                System.out.println("Возврат в меню...");
+                return;
+            }
+            game.playAgainSeries();
+        }
+    }
+
+    private static boolean isYes(String answer) {
+        String normalized = answer.trim().toLowerCase();
+        return normalized.equals("да") || normalized.equals("д") || normalized.equals("yes") || normalized.equals("y");
     }
 }

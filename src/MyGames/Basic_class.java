@@ -12,7 +12,7 @@ public class Basic_class {
     protected int totalUserScore = 0;
     protected int gamesPlayed = 0;
 
-    protected Scanner scanner = new Scanner(System.in);
+    protected static Scanner scanner = new Scanner(System.in);
     protected String answer;
 
     protected static String gameName;
@@ -53,6 +53,17 @@ public class Basic_class {
         System.out.println("   Спасибо за игру!");
         System.out.println("   Итог серии: " + totalUserScore);
         System.out.println("========================================");
+    }
+
+    /** Запускает ещё одну серию после проигрыша или завершения уровня. */
+    public void playAgainSeries() {
+        newSeries();
+        playAgain = true;
+        play();
+    }
+
+    /** Сброс состояния серии перед новым запуском; переопределяется играми со своим прогрессом. */
+    protected void newSeries() {
     }
     protected boolean askPlayAgain() {
         System.out.print("Сыграть ещё раз? (да/нет): ");

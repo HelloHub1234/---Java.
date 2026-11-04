@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Random;
 
 public class Game_box extends Basic_class{
+    private static final int MAX_LEVEL = 10;
+
     private int border = 3;
     private int level = 1;
     private final String verity = "Хэй, привет, я Верити!!!";
@@ -22,9 +24,8 @@ public class Game_box extends Basic_class{
         printTitle();
         playAgain = true;
         while (playAgain) {
-            fillBoxes();
             startNewGame();
-            if(level > 10){
+            if(level > MAX_LEVEL){
                 System.out.println();
                 System.out.println("========================================");
                 System.out.println("   *** Игра окончена!!!!");
@@ -37,23 +38,30 @@ public class Game_box extends Basic_class{
     }
     protected void startNewGame(){
         gamesPlayed++;
-        clearBoxes();
+        fillBoxes();
         setRandBox();
         inputUserValue();
         check();
         setBorder();
     }
+    @Override
+    protected void newSeries(){
+        userScore = 0;
+        level = 1;
+        count = 1;
+        // Верити снова в трёх коробках, как в самом начале
+        border = 3;
+    }
     private void setBorder(){
-        if(aBoolean) {
-            if (level < 10) {
-                count++;
-                System.out.println();
-                System.out.println(" *** Уровень повышается, следующий - " + count);
-                border = (int) (count + ((double) count / 2.3 + 0.8));
-            } else {
-                level++;
-            }
+        if(!aBoolean) {
+            return;
         }
+        // Каждое угадывание повышает уровень; число коробок растёт с первого уровня
+        level++;
+        count = level;
+        border = (int) (count + ((double) count / 2.3));
+        System.out.println();
+        System.out.println(" *** Уровень повышается: " + count + ", коробок в следующем раунде — " + border);
     }
     private int setRandValue(){
         return rnd.nextInt(border);
@@ -89,16 +97,12 @@ public class Game_box extends Basic_class{
             System.out.println("+1 verity");
             userScore++;
             aBoolean = true;
-            level++;
             System.out.println("Ваш счёт на данный момент: " + userScore);
         }else{
             aBoolean = false;
-            System.out.println("Вы не угадали, начните следующий раунд :(");
-        }
-    }
-    private void clearBoxes(){
-        for (int i = 0; i < boxes.size(); i++) {
-            boxes.set(i, "empty");
+            // показываем, где на самом деле была Верити, иначе игрок ничего не узнаёт о ходе
+            System.out.println("Вы не угадали. Верити была в коробке " + (boxes.indexOf(verity) + 1) + ".");
+            System.out.println("Игра окончена — уровень не повышен. Ваш счёт: " + userScore);
         }
     }
     private void fillBoxes(){
@@ -108,18 +112,23 @@ public class Game_box extends Basic_class{
         }
     }
     protected boolean askPlayAgain() {
-        return super.askPlayAgain();
+        if (!aBoolean) {
+            // проигрыш завершает текущую серию; вопрос про новую серию задаёт launcher
+            System.out.println("Серия завершена.");
+            return false;
+        }
+        return true;
     }
     protected void printFarewell() {
         totalUserScore += userScore;
-        var percent = gamesPlayed > 0 ? (float) totalUserScore / gamesPlayed : 0.0f;
+        var percent = gamesPlayed > 0 ? (float) totalUserScore / gamesPlayed * 100 : 0.0f;
 
         System.out.println();
         System.out.println("========================================");
         System.out.println("   Спасибо за игру!");
         System.out.println("   Всего раундов сыграно: " + gamesPlayed);
         System.out.println("   Итог серии: " + totalUserScore);
-        System.out.printf("   Процент угадывания: %.2f%n", percent);
+        System.out.printf("   Процент угадывания: %.2f%%%n", percent);
         System.out.println("========================================");
     }
 }

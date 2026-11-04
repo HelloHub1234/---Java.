@@ -5,6 +5,8 @@ import java.util.Random;
 import java.util.Set;
 
 public class Game_rand extends Basic_class {
+    private static final int MAX_BORDER = 1_000_000;
+
     private int border;
     private int userValue;
     private int randValue;
@@ -22,13 +24,15 @@ public class Game_rand extends Basic_class {
         while (true) {
             String input = scanner.nextLine().trim();
             try {
+                // nextInt(border + 1) на границе Integer.MAX_VALUE переполняется и падает
                 border = Integer.parseInt(input);
-                if (border > 0) {
+                if (border > 0 && border < MAX_BORDER) {
                     return;
                 }
             } catch (NumberFormatException ignored) {
+                // нечисловой ввод — просим повторить ниже
             }
-            System.out.print("Введите целое число больше 0: ");
+            System.out.print("Введите целое число от 1 до " + (MAX_BORDER - 1) + ": ");
         }
     }
 
@@ -65,6 +69,12 @@ public class Game_rand extends Basic_class {
     private int readGuess() {
         while (true) {
             int guess = readInt();
+            // загаданное лежит в [0, border]; ввод вне диапазона раньше попадал в previousGuesses
+            // и бесконечно считался «уже вводился», не давая подсказок — отсекаем сразу
+            if (guess < 0 || guess > border) {
+                System.out.print("Число вне диапазона. Введите число от 0 до " + border + ": ");
+                continue;
+            }
             if (!previousGuesses.add(guess)) {
                 System.out.print("Это число уже вводилось ранее. Введите другое число: ");
                 continue;
@@ -88,19 +98,24 @@ public class Game_rand extends Basic_class {
     }
 
     private boolean isCorrect() {
-        return userValue == randValue;
+        if (userValue == randValue) {
+            return true;
+        }
+        System.out.println(userValue < randValue ? "Загаданное число больше." : "Загаданное число меньше.");
+        return false;
     }
 
     protected void finishGame() {
         totalUserScore += userScore;
-        float percent = totalCount > 0 ? (float) userScore / totalCount : 0.0f;
+        // раньше процент считался как угаданные числа / попытки и легко превышал 100%
+        float percent = totalCount > 0 ? (float) totalUserScore / gamesPlayed * 100 : 0.0f;
         System.out.println();
         System.out.println("========================================");
         System.out.println("   Число раундов " + gamesPlayed);
         System.out.println("========================================");
         System.out.println("Ваш счёт угаданных чисел (за все раунды): " + totalUserScore);
         System.out.println("Ваш счёт попыток (за все раунды): " + totalCount);
-        System.out.printf("Процент угадывания: %.2f%n", percent);
+        System.out.printf("Процент угадывания: %.2f%%%n", percent);
     }
 
     protected boolean askPlayAgain() {

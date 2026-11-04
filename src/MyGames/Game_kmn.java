@@ -44,10 +44,9 @@ public class Game_kmn extends Basic_class{
     protected void startNewGame() {
         userScore = 0;
         botScore = 0;
-        gamesPlayed++;
 
         System.out.println();
-        System.out.println("===== Игра №" + gamesPlayed + " =====");
+        System.out.println("===== Игра №" + (gamesPlayed + 1) + " =====");
 
         askAttempts();
     }
@@ -88,6 +87,7 @@ public class Game_kmn extends Basic_class{
     protected void finishGame() {
         totalUserScore += userScore;
         totalBotScore += botScore;
+        gamesPlayed++;
 
         System.out.println("========================================");
         System.out.println("   Итог игры №" + gamesPlayed);
