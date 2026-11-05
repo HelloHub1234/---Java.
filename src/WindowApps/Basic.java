@@ -537,16 +537,32 @@ public class Basic {
 
         private static final long serialVersionUID = 1L;
 
-        private static final int ARC = 18;
+        private static final int ARC = 20;
 
         private final Basic owner;
         private boolean highlighted;
+        private String lastText;
 
         private RoundedButton(Basic owner, String text) {
             super(text);
             this.owner = owner;
             setOpaque(false);
             setRolloverEnabled(true);
+            setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+
+            // Звук нажатия — одно место для всех кнопок приложения: подписка на модель,
+            // поэтому и кнопки магазина со своим ActionListener получают звук автоматически.
+            addActionListener(e -> ClickSound.play());
+            addPropertyChangeListener("text", event -> {
+                // Кнопка магазина пересобирает HTML-текст регулярно: без этой защиты
+                // каждое обновление приводило бы к лишнему пересчёту раскладки.
+                String next = (String) event.getNewValue();
+                if (next != null && next.equals(lastText)) {
+                    return;
+                }
+                lastText = next;
+                revalidate();
+            });
         }
 
         public void setHighlighted(boolean highlighted) {
@@ -570,51 +586,49 @@ public class Basic {
                 return;
             }
 
-            // Кнопка должна читаться на фоне любой темы: берём подложку цвета текста темы
-            // и делаем её полупрозрачной, а сверху добавляем тонкую акцентную кромку.
-            Color base;
-            if (getModel().isPressed()) {
-                base = theme.getAccent();
-            } else if (getModel().isRollover()) {
-                base = theme.getButtonHover();
-            } else if (highlighted) {
-                base = theme.getAffordable();
-            } else {
-                base = theme.getButton();
-            }
+            boolean pressed = getModel().isPressed();
+            boolean rollover = getModel().isRollover();
 
-            // Светлая прослойка отделяет кнопку от фона даже в тёмных темах.
-            Color veil = theme.getText();
-            int veilAlpha = getModel().isPressed() ? 0 : (getModel().isRollover() ? 46 : 30);
-            Color fill = veilAlpha == 0 ? base : blend(base, veil, veilAlpha);
+            // Оформление — контурная кнопка: вместо плотной заливки остаётся только
+            // едва заметная подложка, а роль «тела» берёт на себя двойная обводка.
+            // Так кнопки не сливаются с полупрозрачной карточкой ни в одной теме.
+            Color accent = theme.getAccent();
+            Color accentHover = theme.getAccentHover();
+            Color text = theme.getText();
 
+            int fillAlpha = pressed ? 46 : (rollover ? 30 : (highlighted ? 22 : 12));
+            Color fill = withAlpha(highlighted ? theme.getAffordable() : accent, fillAlpha);
             g2.setColor(fill);
             g2.fillRoundRect(0, 0, width, height, ARC, ARC);
 
-            // Внутренний свет сверху — объём без «тяжёлых» градиентов.
-            g2.setPaint(new GradientPaint(0, 0, new Color(255, 255, 255, 34),
-                    0, height * 0.6f, new Color(255, 255, 255, 0)));
-            g2.fillRoundRect(0, 0, width, height, ARC, ARC);
+            // Мягкое свечение вокруг контура при наведении/нажатии.
+            if (rollover || pressed) {
+                for (int i = 3; i >= 1; i--) {
+                    g2.setColor(withAlpha(accentHover, pressed ? 26 : 16));
+                    g2.setStroke(new BasicStroke(i * 1.8f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+                    g2.drawRoundRect(i, i, width - 1 - i * 2, height - 1 - i * 2, ARC, ARC);
+                }
+            }
 
-            // Кромка: акцентная при наведении/доступности, спокойная в остальных случаях.
-            Color border = (getModel().isRollover() || getModel().isPressed())
-                    ? theme.getAccentHover()
-                    : (highlighted ? theme.getAffordable().brighter() : blend(base, veil, 70));
-            g2.setColor(border);
-            g2.setStroke(new BasicStroke((getModel().isRollover() || highlighted) ? 2f : 1.2f));
+            // Основной контур: акцентный и тем светлее, чем активнее кнопка.
+            Color border = pressed ? accentHover
+                    : (rollover ? accentHover : (highlighted ? theme.getAffordable().brighter() : accent));
+            g2.setColor(withAlpha(border, pressed || rollover ? 245 : 190));
+            g2.setStroke(new BasicStroke(pressed ? 2.6f : (rollover || highlighted ? 2.2f : 1.6f)));
             g2.drawRoundRect(1, 1, width - 3, height - 3, ARC, ARC);
-            g2.dispose();
 
+            // Внутренняя светлая кромка — объём без градиентной заливки.
+            g2.setColor(withAlpha(text, rollover ? 44 : 24));
+            g2.setStroke(new BasicStroke(1f));
+            g2.drawRoundRect(4, 4, width - 9, height - 9, ARC - 3, ARC - 3);
+
+            g2.dispose();
             super.paintComponent(g);
         }
 
-        /** Смешивает два цвета с заданной прозрачностью верхнего (0–255). */
-        private static Color blend(Color bottom, Color top, int alpha) {
-            float a = Math.max(0, Math.min(255, alpha)) / 255f;
-            return new Color(
-                    Math.round(bottom.getRed() + (top.getRed() - bottom.getRed()) * a),
-                    Math.round(bottom.getGreen() + (top.getGreen() - bottom.getGreen()) * a),
-                    Math.round(bottom.getBlue() + (top.getBlue() - bottom.getBlue()) * a));
+        private static Color withAlpha(Color color, int alpha) {
+            return new Color(color.getRed(), color.getGreen(), color.getBlue(),
+                    Math.max(0, Math.min(255, alpha)));
         }
     }
 }
