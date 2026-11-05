@@ -72,10 +72,29 @@ src/
 AGENTS.md                       # соглашения для контрибьюторов и AI-агентов
 ```
 
+## Скачать и играть
+
+Готовые сборки лежат в разделе [Releases](../../releases) репозитория:
+
+- **Clicker-windows.zip** — сборка со встроенной Java. Скачай, распакуй и запусти `Clicker\Clicker.exe`;
+  ничего дополнительно устанавливать не нужно (Windows 10/11).
+- **clicker.jar** — компактный вариант для тех, у кого уже установлена Java 17+:
+  `java -jar clicker.jar`.
+
+Прогресс сохраняется автоматически в `%APPDATA%\Clicker` (`clicker.sav`).
+
 ## CI и релизы
 
-GitHub Actions (`windows-latest`, JDK 21) собирает кликер: `javac` → `jar` → `jpackage --type app-image`
-→ артефакт `dist/Clicker-windows.zip`. Пуш тега `v*` дополнительно публикует релиз.
+GitHub Actions (`windows-latest`, JDK 21) собирает кликер: `javac` → копирование `messages*.properties` →
+`jar` → `jpackage --type app-image` → `dist/Clicker-windows.zip`. Пуш тега `v*` дополнительно
+публикует релиз с вложенными `Clicker-windows.zip` и `clicker.jar`.
+
+Релиз выпускается тегом:
+
+```powershell
+git tag v1.0.0
+git push origin v1.0.0
+```
 
 ## Соглашения
 
