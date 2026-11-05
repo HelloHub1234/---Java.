@@ -1,6 +1,7 @@
 package WindowApps.clicker;
 
 import WindowApps.Basic;
+import WindowApps.ClickSound;
 import WindowApps.Text;
 import WindowApps.Theme;
 
@@ -11,12 +12,12 @@ import java.awt.geom.RoundRectangle2D;
 /** Константы размеров, шрифтов, задержек и фабрики визуальных компонентов кликера. */
 public final class ClickerTheme {
 
-    public static final int BUTTON_WIDTH = 200;
-    public static final int BUTTON_HEIGHT = 66;
-    public static final float BUTTON_FONT_SIZE = 16f;
-    public static final int BUTTON_GAP = 12;
+    public static final int BUTTON_WIDTH = 228;
+    public static final int BUTTON_HEIGHT = 76;
+    public static final float BUTTON_FONT_SIZE = 17f;
+    public static final int BUTTON_GAP = 14;
     public static final Insets PANEL_PADDING = new Insets(30, 40, 30, 40);
-    public static final int EXIT_GAP = 22;
+    public static final int EXIT_GAP = 26;
     public static final int AUTOCLICKER_DELAY_MS = 1000;
 
     public static final Dimension BUTTON_SIZE = new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT);
@@ -26,7 +27,7 @@ public final class ClickerTheme {
     public static final int CARD_ARC = 26;
     public static final int CARD_GLOW = 26;
 
-    public static final Font BUTTON_FONT = new Font(Font.SANS_SERIF, Font.BOLD, 16);
+    public static final Font BUTTON_FONT = new Font(Font.SANS_SERIF, Font.BOLD, 17);
     public static final Font COUNT_FONT = new Font(Font.SANS_SERIF, Font.BOLD, 96);
     public static final Font UPGRADE_FONT = new Font(Font.SANS_SERIF, Font.BOLD, 15);
     public static final Font BALANCE_FONT = new Font(Font.SANS_SERIF, Font.BOLD, 22);
@@ -61,7 +62,11 @@ public final class ClickerTheme {
         button.setFont(CLICK_FONT);
         button.setPreferredSize(CLICK_BUTTON_SIZE);
         button.setActionCommand(command);
-        button.addActionListener(e -> basic.runCommand(command));
+        button.addActionListener(e -> {
+            // Свой тембр — игрок должен на слух отличать «Нажми» от служебных кнопок.
+            ClickSound.playClick();
+            basic.runCommand(command);
+        });
         return button;
     }
 

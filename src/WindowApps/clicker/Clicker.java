@@ -6,6 +6,8 @@ import WindowApps.Theme;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class Clicker extends Basic {
 
@@ -13,6 +15,11 @@ public class Clicker extends Basic {
     private final ProgressStorage storage = new ProgressStorage(progress);
     private Timer autoClicker;
     private CountPanel countPanel;
+    /**
+     * Точка последнего нажатия в координатах панели. Кнопка отдаёт событие мыши, но действие
+     * выполняется уже после него, поэтому координаты нужно запомнить заранее.
+     */
+    private Point lastClickPoint;
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> new Clicker().start());
@@ -35,6 +42,15 @@ public class Clicker extends Basic {
         panel.add(countPanel, BorderLayout.CENTER);
         panel.add(new ControlPanel(this), BorderLayout.EAST);
         addParticleLayer();
+
+        // Эффект должен рождаться в точке клика, где бы он ни был: слушатель на всей панели
+        // ловит нажатия по пустому месту, по карточкам и по кнопкам (событие всплывает от них).
+        panel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                lastClickPoint = SwingUtilities.convertPoint(e.getComponent(), e.getPoint(), panel);
+            }
+        });
 
         storage.load();
         applyTheme(progress.getTheme());
@@ -69,7 +85,7 @@ public class Clicker extends Basic {
         actions.put(EXIT, this::exitApplication);
         actions.put(ControlPanel.CLICK, () -> {
             progress.addClicks(progress.clicksPerAction());
-            spawnParticles(countPanel.getClickButton());
+            spawnParticles(lastClickPoint);
         });
         actions.put(ControlPanel.SHOP, () -> {
             // на время диалога автокликер не тикает, чтобы счётчик не дёргался под модальным окном

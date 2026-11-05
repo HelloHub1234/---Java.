@@ -17,6 +17,7 @@
 ```
 src/WindowApps/                 # общий каркас (переиспользуется приложениями)
   Basic.java                    # базовое окно: темы, кнопки, частицы, actions, restart()
+  ClickSound.java               # синтезированные звуки UI (кнопка и клик), без аудиофайлов
   AppIconPainter.java           # единственный источник иконки: окно + assets/clicker.ico для .exe
   Theme.java                    # enum палитр (STANDARD, CYBERPUNK, FOREST, SOLAR) + byName()
   Text.java                     # i18n через ResourceBundle
@@ -100,6 +101,12 @@ powershell -File tools/generate-icon.ps1
 - Новые команды кнопок — константы (`ControlPanel.CLICK`, `Basic.EXIT`) и запись в
   `Map<String, Runnable> actions` в `initActions()`; обработка незнакомой команды уже есть в `handle(...)`.
 - Вся работа со Swing — только в EDT (`SwingUtilities.invokeLater`).
+- Звук — только через `WindowApps.ClickSound` (сэмплы синтезируются в памяти, файлов нет).
+  Звук кнопок уже висит в `Basic.RoundedButton`, отдельный тембр главной кнопки — в `ClickerTheme.createClickButton`;
+  не дублируйте `ClickSound.play()` в своих `ActionListener`, иначе будет двойной тик.
+- Частицы эффекта ставятся в точку клика: `spawnParticles(Point)` в координатах панели.
+  Точку нажатия по всему окну можно получить подпиской на `panel.addMouseListener`
+  (событие всплывает от дочерних компонентов, включая кнопки).
 - Изменяйте `GameProgress` через его методы (они выставляют `markDirty()` и вызывают слушателей);
   UI обновляется подпиской `progress.addListener(...)` — счётчик и перезапуск автокликера подписаны там же.
 - Прогресс лежит в бинарном `clicker.sav` в `%APPDATA%\Clicker` (на не-Windows — `~/.clicker`),

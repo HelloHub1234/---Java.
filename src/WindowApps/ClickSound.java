@@ -10,10 +10,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 
 /**
- * Тихий звук нажатия кнопки. Сэмпл синтезируется в памяти (короткий «тик» из синуса с затуханием),
+ * Короткие звуки интерфейса. Все сэмплы синтезируются в памяти (синус с затуханием),
  * поэтому в репозиторий не попадает ни одного аудиофайла, а звук работает и в собранном .exe.
  * <p>
- * Сэмпл держится в одной структуре {@link Clip}, а вызовы идут через её собственный поток:
+ * Каждый сэмпл держится в одной структуре {@link Clip}, и вызовы идут через её собственный поток:
  * {@code Clip#setFramePosition(0) + start()} на уже играющем клипе бросает
  * {@code IllegalStateException}, и при быстрых кликах это ломало бы звук.
  */
@@ -22,26 +22,38 @@ public final class ClickSound {
     private static final float SAMPLE_RATE = 44100f;
     private static final int BITS = 16;
     private static final int CHANNELS = 1;
-    /** Длительность «тика»: коротко, чтобы не раздражать при быстром клике. */
-    private static final int DURATION_MS = 90;
-    /** Базовая частота: 880 Гц читается как мягкое «щёлк» и не режет ухо. */
-    private static final double FREQUENCY = 880;
-    /** Общая громкость относительно полной шкалы: звук должен быть едва слышным. */
-    private static final double VOLUME = 0.14;
 
-    private static Clip clip;
+    private static Clip buttonClip;
+    private static Clip clickClip;
     private static boolean unavailable;
 
     private ClickSound() {
     }
 
-    /** Проигрывает короткий звук нажатия. Безопасно вызывать из EDT сколько угодно раз. */
+    /** Тихий «тик» для второстепенных кнопок: 880 Гц, 90 мс. */
     public static void play() {
+        playButton();
+    }
+
+    /** Звук нажатия второстепенной кнопки. Безопасно вызывать из EDT сколько угодно раз. */
+    public static void playButton() {
+        trigger(true, 880, 90, 0.14);
+    }
+
+    /**
+     * Звук главной кнопки «Нажми»: ниже и короче кнопочного, чтобы на слух отличался
+     * от тиканья панели — это отдельное действие игрока, а не служебная кнопка.
+     */
+    public static void playClick() {
+        trigger(false, 420, 70, 0.20);
+    }
+
+    private static void trigger(boolean primary, double frequency, int durationMs, double volume) {
         if (unavailable) {
             return;
         }
         try {
-            Clip target = clip();
+            Clip target = primary ? clip(true, frequency, durationMs, volume) : clip(false, frequency, durationMs, volume);
             if (target == null) {
                 return;
             }
@@ -54,11 +66,24 @@ public final class ClickSound {
         }
     }
 
-    private static Clip clip() throws Exception {
-        if (clip != null) {
-            return clip;
+    private static synchronized Clip clip(boolean primary, double frequency, int durationMs, double volume)
+            throws Exception {
+        if (primary && buttonClip != null) {
+            return buttonClip;
         }
-        byte[] pcm = generateTick();
+        if (!primary && clickClip != null) {
+            return clickClip;
+        }
+        Clip created = open(generate(frequency, durationMs, volume));
+        if (primary) {
+            buttonClip = created;
+        } else {
+            clickClip = created;
+        }
+        return created;
+    }
+
+    private static Clip open(byte[] pcm) throws Exception {
         AudioFormat format = new AudioFormat(SAMPLE_RATE, BITS, CHANNELS, true, false);
         try (InputStream in = new ByteArrayInputStream(pcm)) {
             AudioInputStream stream = new AudioInputStream(in, format, pcm.length / (BITS / 8L));
@@ -69,14 +94,16 @@ public final class ClickSound {
                     created.setFramePosition(0);
                 }
             });
-            clip = created;
-            return clip;
+            return created;
         }
     }
 
-    /** Один «тик»: синус с экспоненциальным затуханием и короткой атакой против щелчка. */
-    private static byte[] generateTick() {
-        int samples = (int) (SAMPLE_RATE * DURATION_MS / 1000f);
+    /**
+     * Один «тик»: синус с экспоненциальным затуханием и короткой атакой против щелчка.
+     * Вторая гармоника добавляет «деревянности» — так звук не похож на писк динамика.
+     */
+    private static byte[] generate(double frequency, int durationMs, double volume) {
+        int samples = (int) (SAMPLE_RATE * durationMs / 1000f);
         ByteArrayOutputStream out = new ByteArrayOutputStream(samples * 2);
         for (int i = 0; i < samples; i++) {
             double t = (double) i / SAMPLE_RATE;
@@ -84,9 +111,9 @@ public final class ClickSound {
             double envelope = Math.exp(-progress * 7.5);
             // Первые миллисекунды гасим атаку, иначе получается резкий цифровой щелчок.
             double attack = Math.min(1.0, t / 0.004);
-            double wave = Math.sin(2 * Math.PI * FREQUENCY * t) * 0.75
-                    + Math.sin(2 * Math.PI * FREQUENCY * 2 * t) * 0.25;
-            short value = (short) Math.round(wave * envelope * attack * VOLUME * Short.MAX_VALUE);
+            double wave = Math.sin(2 * Math.PI * frequency * t) * 0.75
+                    + Math.sin(2 * Math.PI * frequency * 2 * t) * 0.25;
+            short value = (short) Math.round(wave * envelope * attack * volume * Short.MAX_VALUE);
             out.write(value & 0xFF);
             out.write((value >>> 8) & 0xFF);
         }
@@ -96,9 +123,15 @@ public final class ClickSound {
     /** Отключает звук (нужно, если пользователь не хочет аудио, например в тестах). */
     static void disable() {
         unavailable = true;
+        closeQuietly(buttonClip);
+        closeQuietly(clickClip);
+        buttonClip = null;
+        clickClip = null;
+    }
+
+    private static void closeQuietly(Clip clip) {
         if (clip != null) {
             clip.close();
-            clip = null;
         }
     }
 }

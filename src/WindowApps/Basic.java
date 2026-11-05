@@ -248,13 +248,16 @@ public class Basic {
         System.exit(0);
     }
 
-    protected void spawnParticles(Component source) {
-        Component anchor = source == null ? panel : source;
-        Point origin = SwingUtilities.convertPoint(anchor, anchor.getWidth() / 2, anchor.getHeight() / 2, panel);
+    /**
+     * Частицы в точке клика. Точка задаётся в координатах панели: кнопка может быть в любом месте окна,
+     * и эффект должен рождаться там, куда пришёлся курсор, а не в центре кнопки.
+     */
+    protected void spawnParticles(Point origin) {
+        Point point = origin == null ? new Point(panel.getWidth() / 2, panel.getHeight() / 2) : origin;
         for (int i = 0; i < 14; i++) {
             double angle = random.nextDouble() * Math.PI * 2;
             double speed = 1.5 + random.nextDouble() * 3.5;
-            particles.add(new Particle(origin.x, origin.y,
+            particles.add(new Particle(point.x, point.y,
                     Math.cos(angle) * speed,
                     Math.sin(angle) * speed - 1.5,
                     3 + random.nextDouble() * 4));
@@ -263,7 +266,7 @@ public class Basic {
         for (int i = 0; i < 5; i++) {
             double angle = random.nextDouble() * Math.PI * 2;
             double speed = 4 + random.nextDouble() * 5;
-            particles.add(new Particle(origin.x, origin.y,
+            particles.add(new Particle(point.x, point.y,
                     Math.cos(angle) * speed,
                     Math.sin(angle) * speed,
                     2 + random.nextDouble() * 2,
@@ -273,6 +276,12 @@ public class Basic {
             particleTimer = new Timer(PARTICLE_FRAME_MS, e -> tickParticles());
             particleTimer.start();
         }
+    }
+
+    /** Частицы в центре компонента — для вызовов, где конкретная точка неизвестна. */
+    protected void spawnParticles(Component source) {
+        Component anchor = source == null ? panel : source;
+        spawnParticles(SwingUtilities.convertPoint(anchor, anchor.getWidth() / 2, anchor.getHeight() / 2, panel));
     }
 
     private void tickParticles() {
