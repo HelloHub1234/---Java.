@@ -43,20 +43,36 @@ public class Clicker extends Basic {
         panel.add(new ControlPanel(this), BorderLayout.EAST);
         addParticleLayer();
 
-        // Эффект должен рождаться в точке клика, где бы он ни был: слушатель на всей панели
-        // ловит нажатия по пустому месту, по карточкам и по кнопкам (событие всплывает от них).
+        // Эффект должен рождаться в точке клика. Ловим два источника:
+        // 1) кнопку «Нажми» отдельно — JButton не даёт mousePressed всплывать на панель,
+        //    и раньше координаты оставались от ПРЕДЫДУЩЕГО клика по фону;
+        // 2) саму панель — нажатие по пустому месту тоже запоминается, чтобы следующее
+        //    действие не использовало устаревшую точку.
+        listClickPoint(countPanel.getClickButton());
         panel.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
-                lastClickPoint = SwingUtilities.convertPoint(e.getComponent(), e.getPoint(), panel);
+                rememberClickPoint(e);
             }
         });
 
-        storage.load();
-        applyTheme(progress.getTheme());
-        showCount();
-        resume();
-        startBackgroundAnimation();
+    }
+
+    /** Запоминает точку нажатия в координатах панели (компоненты любого уровня вложенности). */
+    private void rememberClickPoint(MouseEvent e) {
+        lastClickPoint = SwingUtilities.convertPoint(e.getComponent(), e.getPoint(), panel);
+        WindowApps.clicker.ParticleDebug.log("PRESS comp=" + e.getComponent().getClass().getSimpleName()
+                + " local=" + e.getPoint() + " panel=" + lastClickPoint);
+    }
+
+    /** Подписывает компонент на запоминание точки нажатия. */
+    private void listClickPoint(Component component) {
+        component.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                rememberClickPoint(e);
+            }
+        });
     }
 
     @Override
@@ -85,6 +101,7 @@ public class Clicker extends Basic {
         actions.put(EXIT, this::exitApplication);
         actions.put(ControlPanel.CLICK, () -> {
             progress.addClicks(progress.clicksPerAction());
+            WindowApps.clicker.ParticleDebug.log("CLICK action point=" + lastClickPoint);
             spawnParticles(lastClickPoint);
         });
         actions.put(ControlPanel.SHOP, () -> {

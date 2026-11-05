@@ -22,14 +22,17 @@ public class ControlPanel extends JPanel {
 
         JPanel buttons = new JPanel(new GridLayout(4, 1, 0, ClickerTheme.BUTTON_GAP));
         buttons.setOpaque(false);
+        // Кнопки должны быть высокими:
+        // GridLayout равномерно делит высоту колонки между строками, поэтому высоту задаёт
+        // именно preferredSize кнопок, а не размер карточки. Раньше SIZE обнулялся,
+        // и кнопки получали высоту из текста — то есть оставались маленькими.
         JButton shop = ClickerTheme.createButton(basic, "button.shop", SHOP);
         JButton settings = ClickerTheme.createButton(basic, "button.settings", SETTINGS);
         JButton reset = ClickerTheme.createButton(basic, "button.reset", RESET);
         JButton save = ClickerTheme.createButton(basic, "button.save", SAVE);
-        // Кнопки больше не пинятся к BUTTON_SIZE: GridLayout растягивает их по ширине
-        // карточки, и обводка выглядит ровной рамкой, а не плавающим островком.
         for (JButton button : new JButton[]{shop, settings, reset, save}) {
-            button.setPreferredSize(null);
+            button.setPreferredSize(ClickerTheme.BUTTON_SIZE);
+            button.setMinimumSize(ClickerTheme.BUTTON_SIZE);
             buttons.add(button);
         }
 
@@ -37,7 +40,8 @@ public class ControlPanel extends JPanel {
         exitPanel.setOpaque(false);
         exitPanel.setBorder(BorderFactory.createEmptyBorder(ClickerTheme.EXIT_GAP, 0, 0, 0));
         JButton exit = ClickerTheme.createButton(basic, "button.exit", Basic.EXIT);
-        exit.setPreferredSize(null);
+        exit.setPreferredSize(ClickerTheme.BUTTON_SIZE);
+        exit.setMinimumSize(ClickerTheme.BUTTON_SIZE);
         exitPanel.add(exit);
 
         JPanel column = new JPanel(new BorderLayout());
@@ -54,6 +58,7 @@ public class ControlPanel extends JPanel {
         card.add(header, BorderLayout.NORTH);
         card.add(column, BorderLayout.CENTER);
         card.setMaximumSize(new Dimension(ClickerTheme.BUTTON_WIDTH + 104, Integer.MAX_VALUE));
+        card.setMinimumSize(new Dimension(ClickerTheme.BUTTON_WIDTH + 104, 620));
 
         JPanel wrapper = new JPanel(new GridBagLayout());
         wrapper.setOpaque(false);

@@ -1,0 +1,546 @@
+1793899159444 PRESS comp=ClickButton local=java.awt.Point[x=240,y=69] panel=java.awt.Point[x=607,y=445]
+1793899159768 CLICK action point=java.awt.Point[x=607,y=445]
+1793899159769 SPAWN point=java.awt.Point[x=607,y=445] panelSize=1366x705
+1793899159772 PRESS comp=ClickButton local=java.awt.Point[x=243,y=68] panel=java.awt.Point[x=610,y=444]
+1793899159908 CLICK action point=java.awt.Point[x=610,y=444]
+1793899159909 SPAWN point=java.awt.Point[x=610,y=444] panelSize=1366x705
+1793899159985 PRESS comp=ClickButton local=java.awt.Point[x=243,y=64] panel=java.awt.Point[x=610,y=444]
+1793899159986 CLICK action point=java.awt.Point[x=610,y=444]
+1793899160084 SPAWN point=java.awt.Point[x=610,y=444] panelSize=1366x705
+1793899160149 PRESS comp=ClickButton local=java.awt.Point[x=243,y=64] panel=java.awt.Point[x=610,y=444]
+1793899160214 CLICK action point=java.awt.Point[x=610,y=444]
+1793899160215 SPAWN point=java.awt.Point[x=610,y=444] panelSize=1366x705
+1793899160291 PRESS comp=ClickButton local=java.awt.Point[x=243,y=64] panel=java.awt.Point[x=610,y=444]
+1793899160420 CLICK action point=java.awt.Point[x=610,y=444]
+1793899160420 SPAWN point=java.awt.Point[x=610,y=444] panelSize=1366x705
+1793899160492 PRESS comp=ClickButton local=java.awt.Point[x=243,y=64] panel=java.awt.Point[x=610,y=444]
+1793899160555 CLICK action point=java.awt.Point[x=610,y=444]
+1793899160556 SPAWN point=java.awt.Point[x=610,y=444] panelSize=1366x705
+1793899161109 PRESS comp=ClickButton local=java.awt.Point[x=220,y=25] panel=java.awt.Point[x=587,y=405]
+1793899161219 CLICK action point=java.awt.Point[x=587,y=405]
+1793899161219 SPAWN point=java.awt.Point[x=587,y=405] panelSize=1366x705
+1793899161299 PRESS comp=ClickButton local=java.awt.Point[x=220,y=25] panel=java.awt.Point[x=587,y=405]
+1793899161391 CLICK action point=java.awt.Point[x=587,y=405]
+1793899161391 SPAWN point=java.awt.Point[x=587,y=405] panelSize=1366x705
+1793899161536 PRESS comp=ClickButton local=java.awt.Point[x=220,y=25] panel=java.awt.Point[x=587,y=405]
+1793899161642 CLICK action point=java.awt.Point[x=587,y=405]
+1793899161643 SPAWN point=java.awt.Point[x=587,y=405] panelSize=1366x705
+1793899169234 PRESS comp=ClickButton local=java.awt.Point[x=289,y=30] panel=java.awt.Point[x=656,y=410]
+1793899169329 CLICK action point=java.awt.Point[x=656,y=410]
+1793899169329 SPAWN point=java.awt.Point[x=656,y=410] panelSize=1366x705
+1793899169454 PRESS comp=ClickButton local=java.awt.Point[x=289,y=30] panel=java.awt.Point[x=656,y=410]
+1793899169516 CLICK action point=java.awt.Point[x=656,y=410]
+1793899169516 SPAWN point=java.awt.Point[x=656,y=410] panelSize=1366x705
+1793899169653 PRESS comp=ClickButton local=java.awt.Point[x=289,y=30] panel=java.awt.Point[x=656,y=410]
+1793899169717 CLICK action point=java.awt.Point[x=656,y=410]
+1793899169717 SPAWN point=java.awt.Point[x=656,y=410] panelSize=1366x705
+1793899169768 PRESS comp=ClickButton local=java.awt.Point[x=289,y=30] panel=java.awt.Point[x=656,y=410]
+1793899169837 CLICK action point=java.awt.Point[x=656,y=410]
+1793899169838 SPAWN point=java.awt.Point[x=656,y=410] panelSize=1366x705
+1793899169906 PRESS comp=ClickButton local=java.awt.Point[x=290,y=29] panel=java.awt.Point[x=657,y=409]
+1793899170045 CLICK action point=java.awt.Point[x=657,y=409]
+1793899170045 SPAWN point=java.awt.Point[x=657,y=409] panelSize=1366x705
+1793899170046 PRESS comp=ClickButton local=java.awt.Point[x=290,y=29] panel=java.awt.Point[x=657,y=409]
+1793899170137 CLICK action point=java.awt.Point[x=657,y=409]
+1793899170138 SPAWN point=java.awt.Point[x=657,y=409] panelSize=1366x705
+1793899170233 PRESS comp=ClickButton local=java.awt.Point[x=289,y=30] panel=java.awt.Point[x=656,y=410]
+1793899170283 CLICK action point=java.awt.Point[x=656,y=410]
+1793899170283 SPAWN point=java.awt.Point[x=656,y=410] panelSize=1366x705
+1793899170384 PRESS comp=ClickButton local=java.awt.Point[x=289,y=30] panel=java.awt.Point[x=656,y=410]
+1793899170465 CLICK action point=java.awt.Point[x=656,y=410]
+1793899170466 SPAWN point=java.awt.Point[x=656,y=410] panelSize=1366x705
+1793899170542 PRESS comp=ClickButton local=java.awt.Point[x=289,y=30] panel=java.awt.Point[x=656,y=410]
+1793899170625 CLICK action point=java.awt.Point[x=656,y=410]
+1793899170625 SPAWN point=java.awt.Point[x=656,y=410] panelSize=1366x705
+1793899170675 PRESS comp=ClickButton local=java.awt.Point[x=290,y=29] panel=java.awt.Point[x=657,y=409]
+1793899170771 CLICK action point=java.awt.Point[x=657,y=409]
+1793899170771 SPAWN point=java.awt.Point[x=657,y=409] panelSize=1366x705
+1793899170848 PRESS comp=ClickButton local=java.awt.Point[x=289,y=24] panel=java.awt.Point[x=656,y=404]
+1793899170973 CLICK action point=java.awt.Point[x=656,y=404]
+1793899170973 SPAWN point=java.awt.Point[x=656,y=404] panelSize=1366x705
+1793899171012 PRESS comp=ClickButton local=java.awt.Point[x=287,y=31] panel=java.awt.Point[x=654,y=411]
+1793899171135 CLICK action point=java.awt.Point[x=654,y=411]
+1793899171135 SPAWN point=java.awt.Point[x=654,y=411] panelSize=1366x705
+1793899171219 PRESS comp=ClickButton local=java.awt.Point[x=284,y=34] panel=java.awt.Point[x=651,y=414]
+1793899171302 CLICK action point=java.awt.Point[x=651,y=414]
+1793899171302 SPAWN point=java.awt.Point[x=651,y=414] panelSize=1366x705
+1793899171432 PRESS comp=ClickButton local=java.awt.Point[x=284,y=34] panel=java.awt.Point[x=651,y=414]
+1793899171474 CLICK action point=java.awt.Point[x=651,y=414]
+1793899171474 SPAWN point=java.awt.Point[x=651,y=414] panelSize=1366x705
+1793899171559 PRESS comp=ClickButton local=java.awt.Point[x=284,y=34] panel=java.awt.Point[x=651,y=414]
+1793899171639 CLICK action point=java.awt.Point[x=651,y=414]
+1793899171640 SPAWN point=java.awt.Point[x=651,y=414] panelSize=1366x705
+1793899171737 PRESS comp=ClickButton local=java.awt.Point[x=288,y=42] panel=java.awt.Point[x=655,y=422]
+1793899171826 CLICK action point=java.awt.Point[x=655,y=422]
+1793899171826 SPAWN point=java.awt.Point[x=655,y=422] panelSize=1366x705
+1793899171866 PRESS comp=ClickButton local=java.awt.Point[x=289,y=47] panel=java.awt.Point[x=656,y=427]
+1793899171949 CLICK action point=java.awt.Point[x=656,y=427]
+1793899171949 SPAWN point=java.awt.Point[x=656,y=427] panelSize=1366x705
+1793899172030 PRESS comp=ClickButton local=java.awt.Point[x=289,y=56] panel=java.awt.Point[x=656,y=436]
+1793899172121 CLICK action point=java.awt.Point[x=656,y=436]
+1793899172122 SPAWN point=java.awt.Point[x=656,y=436] panelSize=1366x705
+1793899172202 PRESS comp=ClickButton local=java.awt.Point[x=288,y=55] panel=java.awt.Point[x=655,y=435]
+1793899172279 CLICK action point=java.awt.Point[x=655,y=435]
+1793899172280 SPAWN point=java.awt.Point[x=655,y=435] panelSize=1366x705
+1793899172359 PRESS comp=ClickButton local=java.awt.Point[x=285,y=49] panel=java.awt.Point[x=652,y=429]
+1793899172438 CLICK action point=java.awt.Point[x=652,y=429]
+1793899172439 SPAWN point=java.awt.Point[x=652,y=429] panelSize=1366x705
+1793899177458 PRESS comp=ClickButton local=java.awt.Point[x=232,y=49] panel=java.awt.Point[x=599,y=429]
+1793899177537 CLICK action point=java.awt.Point[x=599,y=429]
+1793899177537 SPAWN point=java.awt.Point[x=599,y=429] panelSize=1366x705
+1793899177645 PRESS comp=ClickButton local=java.awt.Point[x=232,y=49] panel=java.awt.Point[x=599,y=429]
+1793899177764 CLICK action point=java.awt.Point[x=599,y=429]
+1793899177765 SPAWN point=java.awt.Point[x=599,y=429] panelSize=1366x705
+1793899177812 PRESS comp=ClickButton local=java.awt.Point[x=232,y=49] panel=java.awt.Point[x=599,y=429]
+1793899177912 CLICK action point=java.awt.Point[x=599,y=429]
+1793899177912 SPAWN point=java.awt.Point[x=599,y=429] panelSize=1366x705
+1793899177996 PRESS comp=ClickButton local=java.awt.Point[x=232,y=49] panel=java.awt.Point[x=599,y=429]
+1793899178085 CLICK action point=java.awt.Point[x=599,y=429]
+1793899178086 SPAWN point=java.awt.Point[x=599,y=429] panelSize=1366x705
+1793899178182 PRESS comp=ClickButton local=java.awt.Point[x=229,y=50] panel=java.awt.Point[x=596,y=430]
+1793899178224 CLICK action point=java.awt.Point[x=596,y=430]
+1793899178224 SPAWN point=java.awt.Point[x=596,y=430] panelSize=1366x705
+1793899178350 PRESS comp=ClickButton local=java.awt.Point[x=229,y=50] panel=java.awt.Point[x=596,y=430]
+1793899178398 CLICK action point=java.awt.Point[x=596,y=430]
+1793899178399 SPAWN point=java.awt.Point[x=596,y=430] panelSize=1366x705
+1793899178491 PRESS comp=ClickButton local=java.awt.Point[x=229,y=50] panel=java.awt.Point[x=596,y=430]
+1793899178543 CLICK action point=java.awt.Point[x=596,y=430]
+1793899178543 SPAWN point=java.awt.Point[x=596,y=430] panelSize=1366x705
+1793899178626 PRESS comp=ClickButton local=java.awt.Point[x=229,y=50] panel=java.awt.Point[x=596,y=430]
+1793899178730 CLICK action point=java.awt.Point[x=596,y=430]
+1793899178731 SPAWN point=java.awt.Point[x=596,y=430] panelSize=1366x705
+1793899178816 PRESS comp=ClickButton local=java.awt.Point[x=229,y=50] panel=java.awt.Point[x=596,y=430]
+1793899178922 CLICK action point=java.awt.Point[x=596,y=430]
+1793899178922 SPAWN point=java.awt.Point[x=596,y=430] panelSize=1366x705
+1793899178965 PRESS comp=ClickButton local=java.awt.Point[x=229,y=50] panel=java.awt.Point[x=596,y=430]
+1793899179056 CLICK action point=java.awt.Point[x=596,y=430]
+1793899179056 SPAWN point=java.awt.Point[x=596,y=430] panelSize=1366x705
+1793899179145 PRESS comp=ClickButton local=java.awt.Point[x=229,y=50] panel=java.awt.Point[x=596,y=430]
+1793899179239 CLICK action point=java.awt.Point[x=596,y=430]
+1793899179240 SPAWN point=java.awt.Point[x=596,y=430] panelSize=1366x705
+1793899179333 PRESS comp=ClickButton local=java.awt.Point[x=229,y=50] panel=java.awt.Point[x=596,y=430]
+1793899179427 CLICK action point=java.awt.Point[x=596,y=430]
+1793899179428 SPAWN point=java.awt.Point[x=596,y=430] panelSize=1366x705
+1793899179479 PRESS comp=ClickButton local=java.awt.Point[x=229,y=50] panel=java.awt.Point[x=596,y=430]
+1793899179564 CLICK action point=java.awt.Point[x=596,y=430]
+1793899179565 SPAWN point=java.awt.Point[x=596,y=430] panelSize=1366x705
+1793899179649 PRESS comp=ClickButton local=java.awt.Point[x=229,y=50] panel=java.awt.Point[x=596,y=430]
+1793899179739 CLICK action point=java.awt.Point[x=596,y=430]
+1793899179740 SPAWN point=java.awt.Point[x=596,y=430] panelSize=1366x705
+1793899179832 PRESS comp=ClickButton local=java.awt.Point[x=229,y=50] panel=java.awt.Point[x=596,y=430]
+1793899179924 CLICK action point=java.awt.Point[x=596,y=430]
+1793899179925 SPAWN point=java.awt.Point[x=596,y=430] panelSize=1366x705
+1793899180076 PRESS comp=ClickButton local=java.awt.Point[x=229,y=50] panel=java.awt.Point[x=596,y=430]
+1793899180077 CLICK action point=java.awt.Point[x=596,y=430]
+1793899180078 SPAWN point=java.awt.Point[x=596,y=430] panelSize=1366x705
+1793899180171 PRESS comp=ClickButton local=java.awt.Point[x=229,y=50] panel=java.awt.Point[x=596,y=430]
+1793899180263 CLICK action point=java.awt.Point[x=596,y=430]
+1793899180263 SPAWN point=java.awt.Point[x=596,y=430] panelSize=1366x705
+1793899180347 PRESS comp=ClickButton local=java.awt.Point[x=229,y=50] panel=java.awt.Point[x=596,y=430]
+1793899180437 CLICK action point=java.awt.Point[x=596,y=430]
+1793899180438 SPAWN point=java.awt.Point[x=596,y=430] panelSize=1366x705
+1793899180489 PRESS comp=ClickButton local=java.awt.Point[x=229,y=50] panel=java.awt.Point[x=596,y=430]
+1793899180589 CLICK action point=java.awt.Point[x=596,y=430]
+1793899180589 SPAWN point=java.awt.Point[x=596,y=430] panelSize=1366x705
+1793899184122 PRESS comp=ClickButton local=java.awt.Point[x=259,y=62] panel=java.awt.Point[x=626,y=442]
+1793899184201 CLICK action point=java.awt.Point[x=626,y=442]
+1793899184201 SPAWN point=java.awt.Point[x=626,y=442] panelSize=1366x705
+1793899184311 PRESS comp=ClickButton local=java.awt.Point[x=257,y=61] panel=java.awt.Point[x=624,y=441]
+1793899184420 CLICK action point=java.awt.Point[x=624,y=441]
+1793899184421 SPAWN point=java.awt.Point[x=624,y=441] panelSize=1366x705
+1793899184484 PRESS comp=ClickButton local=java.awt.Point[x=257,y=61] panel=java.awt.Point[x=624,y=441]
+1793899184581 CLICK action point=java.awt.Point[x=624,y=441]
+1793899184582 SPAWN point=java.awt.Point[x=624,y=441] panelSize=1366x705
+1793899184627 PRESS comp=ClickButton local=java.awt.Point[x=257,y=61] panel=java.awt.Point[x=624,y=441]
+1793899184723 CLICK action point=java.awt.Point[x=624,y=441]
+1793899184724 SPAWN point=java.awt.Point[x=624,y=441] panelSize=1366x705
+1793899184845 PRESS comp=ClickButton local=java.awt.Point[x=257,y=61] panel=java.awt.Point[x=624,y=441]
+1793899184887 CLICK action point=java.awt.Point[x=624,y=441]
+1793899184887 SPAWN point=java.awt.Point[x=624,y=441] panelSize=1366x705
+1793899184962 PRESS comp=ClickButton local=java.awt.Point[x=257,y=61] panel=java.awt.Point[x=624,y=441]
+1793899185038 CLICK action point=java.awt.Point[x=624,y=441]
+1793899185039 SPAWN point=java.awt.Point[x=624,y=441] panelSize=1366x705
+1793899185126 PRESS comp=ClickButton local=java.awt.Point[x=257,y=61] panel=java.awt.Point[x=624,y=441]
+1793899185212 CLICK action point=java.awt.Point[x=624,y=441]
+1793899185212 SPAWN point=java.awt.Point[x=624,y=441] panelSize=1366x705
+1793899185253 PRESS comp=ClickButton local=java.awt.Point[x=261,y=55] panel=java.awt.Point[x=628,y=435]
+1793899185371 CLICK action point=java.awt.Point[x=628,y=435]
+1793899185371 SPAWN point=java.awt.Point[x=628,y=435] panelSize=1366x705
+1793899185451 PRESS comp=ClickButton local=java.awt.Point[x=262,y=55] panel=java.awt.Point[x=629,y=435]
+1793899185652 CLICK action point=java.awt.Point[x=629,y=435]
+1793899185652 SPAWN point=java.awt.Point[x=629,y=435] panelSize=1366x705
+1793899187786 PRESS comp=ClickButton local=java.awt.Point[x=248,y=24] panel=java.awt.Point[x=615,y=404]
+1793899187872 CLICK action point=java.awt.Point[x=615,y=404]
+1793899187873 SPAWN point=java.awt.Point[x=615,y=404] panelSize=1366x705
+1793899187980 PRESS comp=ClickButton local=java.awt.Point[x=246,y=24] panel=java.awt.Point[x=613,y=404]
+1793899188052 CLICK action point=java.awt.Point[x=613,y=404]
+1793899188053 SPAWN point=java.awt.Point[x=613,y=404] panelSize=1366x705
+1793899188131 PRESS comp=ClickButton local=java.awt.Point[x=246,y=24] panel=java.awt.Point[x=613,y=404]
+1793899188242 CLICK action point=java.awt.Point[x=613,y=404]
+1793899188243 SPAWN point=java.awt.Point[x=613,y=404] panelSize=1366x705
+1793899188319 PRESS comp=ClickButton local=java.awt.Point[x=246,y=24] panel=java.awt.Point[x=613,y=404]
+1793899188394 CLICK action point=java.awt.Point[x=613,y=404]
+1793899188395 SPAWN point=java.awt.Point[x=613,y=404] panelSize=1366x705
+1793899188469 PRESS comp=ClickButton local=java.awt.Point[x=246,y=24] panel=java.awt.Point[x=613,y=404]
+1793899188546 CLICK action point=java.awt.Point[x=613,y=404]
+1793899188546 SPAWN point=java.awt.Point[x=613,y=404] panelSize=1366x705
+1793899188620 PRESS comp=ClickButton local=java.awt.Point[x=246,y=24] panel=java.awt.Point[x=613,y=404]
+1793899188735 CLICK action point=java.awt.Point[x=613,y=404]
+1793899188736 SPAWN point=java.awt.Point[x=613,y=404] panelSize=1366x705
+1793899188773 PRESS comp=ClickButton local=java.awt.Point[x=246,y=24] panel=java.awt.Point[x=613,y=404]
+1793899188850 CLICK action point=java.awt.Point[x=613,y=404]
+1793899188850 SPAWN point=java.awt.Point[x=613,y=404] panelSize=1366x705
+1793899188949 PRESS comp=ClickButton local=java.awt.Point[x=251,y=24] panel=java.awt.Point[x=618,y=404]
+1793899189067 CLICK action point=java.awt.Point[x=618,y=404]
+1793899189068 SPAWN point=java.awt.Point[x=618,y=404] panelSize=1366x705
+1793899189108 PRESS comp=ClickButton local=java.awt.Point[x=236,y=39] panel=java.awt.Point[x=603,y=419]
+1793899189190 CLICK action point=java.awt.Point[x=603,y=419]
+1793899189190 SPAWN point=java.awt.Point[x=603,y=419] panelSize=1366x705
+1793899189305 PRESS comp=ClickButton local=java.awt.Point[x=153,y=59] panel=java.awt.Point[x=520,y=439]
+1793899189370 CLICK action point=java.awt.Point[x=520,y=439]
+1793899189370 SPAWN point=java.awt.Point[x=520,y=439] panelSize=1366x705
+1793899189437 PRESS comp=ClickButton local=java.awt.Point[x=152,y=59] panel=java.awt.Point[x=519,y=439]
+1793899189556 CLICK action point=java.awt.Point[x=519,y=439]
+1793899189556 SPAWN point=java.awt.Point[x=519,y=439] panelSize=1366x705
+1793899189619 PRESS comp=ClickButton local=java.awt.Point[x=181,y=54] panel=java.awt.Point[x=548,y=434]
+1793899189683 CLICK action point=java.awt.Point[x=548,y=434]
+1793899189683 SPAWN point=java.awt.Point[x=548,y=434] panelSize=1366x705
+1793899189796 PRESS comp=ClickButton local=java.awt.Point[x=197,y=46] panel=java.awt.Point[x=564,y=426]
+1793899189857 CLICK action point=java.awt.Point[x=564,y=426]
+1793899189857 SPAWN point=java.awt.Point[x=564,y=426] panelSize=1366x705
+1793899189973 PRESS comp=ClickButton local=java.awt.Point[x=218,y=48] panel=java.awt.Point[x=585,y=428]
+1793899190034 CLICK action point=java.awt.Point[x=585,y=428]
+1793899190034 SPAWN point=java.awt.Point[x=585,y=428] panelSize=1366x705
+1793899190156 PRESS comp=ClickButton local=java.awt.Point[x=204,y=53] panel=java.awt.Point[x=571,y=433]
+1793899190212 CLICK action point=java.awt.Point[x=571,y=433]
+1793899190212 SPAWN point=java.awt.Point[x=571,y=433] panelSize=1366x705
+1793899190357 PRESS comp=ClickButton local=java.awt.Point[x=156,y=48] panel=java.awt.Point[x=523,y=428]
+1793899190400 CLICK action point=java.awt.Point[x=523,y=428]
+1793899190401 SPAWN point=java.awt.Point[x=523,y=428] panelSize=1366x705
+1793899190440 PRESS comp=ClickButton local=java.awt.Point[x=156,y=48] panel=java.awt.Point[x=523,y=428]
+1793899190518 CLICK action point=java.awt.Point[x=523,y=428]
+1793899190518 SPAWN point=java.awt.Point[x=523,y=428] panelSize=1366x705
+1793899190595 PRESS comp=ClickButton local=java.awt.Point[x=164,y=43] panel=java.awt.Point[x=531,y=423]
+1793899190673 CLICK action point=java.awt.Point[x=531,y=423]
+1793899190673 SPAWN point=java.awt.Point[x=531,y=423] panelSize=1366x705
+1793899190754 PRESS comp=ClickButton local=java.awt.Point[x=200,y=50] panel=java.awt.Point[x=567,y=430]
+1793899190870 CLICK action point=java.awt.Point[x=567,y=430]
+1793899190870 SPAWN point=java.awt.Point[x=567,y=430] panelSize=1366x705
+1793899191060 PRESS comp=ClickButton local=java.awt.Point[x=178,y=65] panel=java.awt.Point[x=545,y=445]
+1793899191135 CLICK action point=java.awt.Point[x=545,y=445]
+1793899191136 SPAWN point=java.awt.Point[x=545,y=445] panelSize=1366x705
+1793899191290 PRESS comp=ClickButton local=java.awt.Point[x=104,y=54] panel=java.awt.Point[x=471,y=434]
+1793899191369 CLICK action point=java.awt.Point[x=471,y=434]
+1793899191369 SPAWN point=java.awt.Point[x=471,y=434] panelSize=1366x705
+1793899191452 PRESS comp=ClickButton local=java.awt.Point[x=111,y=49] panel=java.awt.Point[x=478,y=429]
+1793899191537 CLICK action point=java.awt.Point[x=478,y=429]
+1793899191537 SPAWN point=java.awt.Point[x=478,y=429] panelSize=1366x705
+1793899191615 PRESS comp=ClickButton local=java.awt.Point[x=173,y=52] panel=java.awt.Point[x=540,y=432]
+1793899191691 CLICK action point=java.awt.Point[x=540,y=432]
+1793899191691 SPAWN point=java.awt.Point[x=540,y=432] panelSize=1366x705
+1793899191810 PRESS comp=ClickButton local=java.awt.Point[x=210,y=54] panel=java.awt.Point[x=577,y=434]
+1793899191850 CLICK action point=java.awt.Point[x=577,y=434]
+1793899191851 SPAWN point=java.awt.Point[x=577,y=434] panelSize=1366x705
+1793899191968 PRESS comp=ClickButton local=java.awt.Point[x=213,y=56] panel=java.awt.Point[x=580,y=436]
+1793899192045 CLICK action point=java.awt.Point[x=580,y=436]
+1793899192045 SPAWN point=java.awt.Point[x=580,y=436] panelSize=1366x705
+1793899192121 PRESS comp=ClickButton local=java.awt.Point[x=214,y=67] panel=java.awt.Point[x=581,y=447]
+1793899192200 CLICK action point=java.awt.Point[x=581,y=447]
+1793899192201 SPAWN point=java.awt.Point[x=581,y=447] panelSize=1366x705
+1793899192242 PRESS comp=ClickButton local=java.awt.Point[x=207,y=77] panel=java.awt.Point[x=574,y=457]
+1793899192332 CLICK action point=java.awt.Point[x=574,y=457]
+1793899192333 SPAWN point=java.awt.Point[x=574,y=457] panelSize=1366x705
+1793899192411 PRESS comp=ClickButton local=java.awt.Point[x=146,y=69] panel=java.awt.Point[x=513,y=449]
+1793899192491 CLICK action point=java.awt.Point[x=513,y=449]
+1793899192491 SPAWN point=java.awt.Point[x=513,y=449] panelSize=1366x705
+1793899192606 PRESS comp=ClickButton local=java.awt.Point[x=128,y=61] panel=java.awt.Point[x=495,y=441]
+1793899192653 CLICK action point=java.awt.Point[x=495,y=441]
+1793899192653 SPAWN point=java.awt.Point[x=495,y=441] panelSize=1366x705
+1793899192740 PRESS comp=ClickButton local=java.awt.Point[x=115,y=67] panel=java.awt.Point[x=482,y=447]
+1793899192822 CLICK action point=java.awt.Point[x=482,y=447]
+1793899192822 SPAWN point=java.awt.Point[x=482,y=447] panelSize=1366x705
+1793899198720 PRESS comp=ClickButton local=java.awt.Point[x=229,y=46] panel=java.awt.Point[x=596,y=426]
+1793899198800 CLICK action point=java.awt.Point[x=596,y=426]
+1793899198800 SPAWN point=java.awt.Point[x=596,y=426] panelSize=1366x705
+1793899198881 PRESS comp=ClickButton local=java.awt.Point[x=229,y=46] panel=java.awt.Point[x=596,y=426]
+1793899198974 CLICK action point=java.awt.Point[x=596,y=426]
+1793899198975 SPAWN point=java.awt.Point[x=596,y=426] panelSize=1366x705
+1793899199070 PRESS comp=ClickButton local=java.awt.Point[x=131,y=50] panel=java.awt.Point[x=498,y=430]
+1793899199155 CLICK action point=java.awt.Point[x=498,y=430]
+1793899199155 SPAWN point=java.awt.Point[x=498,y=430] panelSize=1366x705
+1793899199232 PRESS comp=ClickButton local=java.awt.Point[x=130,y=50] panel=java.awt.Point[x=497,y=430]
+1793899199310 CLICK action point=java.awt.Point[x=497,y=430]
+1793899199310 SPAWN point=java.awt.Point[x=497,y=430] panelSize=1366x705
+1793899199389 PRESS comp=ClickButton local=java.awt.Point[x=194,y=62] panel=java.awt.Point[x=561,y=442]
+1793899199515 CLICK action point=java.awt.Point[x=561,y=442]
+1793899199515 SPAWN point=java.awt.Point[x=561,y=442] panelSize=1366x705
+1793899199558 PRESS comp=ClickButton local=java.awt.Point[x=200,y=61] panel=java.awt.Point[x=567,y=441]
+1793899199636 CLICK action point=java.awt.Point[x=567,y=441]
+1793899199636 SPAWN point=java.awt.Point[x=567,y=441] panelSize=1366x705
+1793899199713 PRESS comp=ClickButton local=java.awt.Point[x=201,y=49] panel=java.awt.Point[x=568,y=429]
+1793899199792 CLICK action point=java.awt.Point[x=568,y=429]
+1793899199792 SPAWN point=java.awt.Point[x=568,y=429] panelSize=1366x705
+1793899199868 PRESS comp=ClickButton local=java.awt.Point[x=108,y=40] panel=java.awt.Point[x=475,y=420]
+1793899199983 CLICK action point=java.awt.Point[x=475,y=420]
+1793899199983 SPAWN point=java.awt.Point[x=475,y=420] panelSize=1366x705
+1793899200025 PRESS comp=ClickButton local=java.awt.Point[x=107,y=46] panel=java.awt.Point[x=474,y=426]
+1793899200114 CLICK action point=java.awt.Point[x=474,y=426]
+1793899200115 SPAWN point=java.awt.Point[x=474,y=426] panelSize=1366x705
+1793899200203 PRESS comp=ClickButton local=java.awt.Point[x=197,y=62] panel=java.awt.Point[x=564,y=442]
+1793899200296 CLICK action point=java.awt.Point[x=564,y=442]
+1793899200297 SPAWN point=java.awt.Point[x=564,y=442] panelSize=1366x705
+1793899200384 PRESS comp=ClickButton local=java.awt.Point[x=225,y=52] panel=java.awt.Point[x=592,y=432]
+1793899200481 CLICK action point=java.awt.Point[x=592,y=432]
+1793899200481 SPAWN point=java.awt.Point[x=592,y=432] panelSize=1366x705
+1793899200532 PRESS comp=ClickButton local=java.awt.Point[x=112,y=27] panel=java.awt.Point[x=479,y=407]
+1793899200632 CLICK action point=java.awt.Point[x=479,y=407]
+1793899200633 SPAWN point=java.awt.Point[x=479,y=407] panelSize=1366x705
+1793899200723 PRESS comp=ClickButton local=java.awt.Point[x=119,y=51] panel=java.awt.Point[x=486,y=431]
+1793899200801 CLICK action point=java.awt.Point[x=486,y=431]
+1793899200801 SPAWN point=java.awt.Point[x=486,y=431] panelSize=1366x705
+1793899200881 PRESS comp=ClickButton local=java.awt.Point[x=253,y=47] panel=java.awt.Point[x=620,y=427]
+1793899200995 CLICK action point=java.awt.Point[x=620,y=427]
+1793899200996 SPAWN point=java.awt.Point[x=620,y=427] panelSize=1366x705
+1793899201073 PRESS comp=ClickButton local=java.awt.Point[x=139,y=40] panel=java.awt.Point[x=506,y=420]
+1793899201150 CLICK action point=java.awt.Point[x=506,y=420]
+1793899201151 SPAWN point=java.awt.Point[x=506,y=420] panelSize=1366x705
+1793899201228 PRESS comp=ClickButton local=java.awt.Point[x=172,y=63] panel=java.awt.Point[x=539,y=443]
+1793899201346 CLICK action point=java.awt.Point[x=539,y=443]
+1793899201346 SPAWN point=java.awt.Point[x=539,y=443] panelSize=1366x705
+1793899201388 PRESS comp=ClickButton local=java.awt.Point[x=178,y=16] panel=java.awt.Point[x=545,y=396]
+1793899201506 CLICK action point=java.awt.Point[x=545,y=396]
+1793899201506 SPAWN point=java.awt.Point[x=545,y=396] panelSize=1366x705
+1793899201583 PRESS comp=ClickButton local=java.awt.Point[x=192,y=63] panel=java.awt.Point[x=559,y=443]
+1793899201665 CLICK action point=java.awt.Point[x=559,y=443]
+1793899201665 SPAWN point=java.awt.Point[x=559,y=443] panelSize=1366x705
+1793899201745 PRESS comp=ClickButton local=java.awt.Point[x=185,y=12] panel=java.awt.Point[x=552,y=392]
+1793899201826 CLICK action point=java.awt.Point[x=552,y=392]
+1793899201827 SPAWN point=java.awt.Point[x=552,y=392] panelSize=1366x705
+1793899201923 PRESS comp=ClickButton local=java.awt.Point[x=215,y=58] panel=java.awt.Point[x=582,y=438]
+1793899202001 CLICK action point=java.awt.Point[x=582,y=438]
+1793899202001 SPAWN point=java.awt.Point[x=582,y=438] panelSize=1366x705
+1793899202081 PRESS comp=ClickButton local=java.awt.Point[x=192,y=44] panel=java.awt.Point[x=559,y=424]
+1793899202162 CLICK action point=java.awt.Point[x=559,y=424]
+1793899202162 SPAWN point=java.awt.Point[x=559,y=424] panelSize=1366x705
+1793899202242 PRESS comp=ClickButton local=java.awt.Point[x=222,y=32] panel=java.awt.Point[x=589,y=412]
+1793899202282 CLICK action point=java.awt.Point[x=589,y=412]
+1793899202282 SPAWN point=java.awt.Point[x=589,y=412] panelSize=1366x705
+1793899202397 PRESS comp=ClickButton local=java.awt.Point[x=216,y=41] panel=java.awt.Point[x=583,y=421]
+1793899202472 CLICK action point=java.awt.Point[x=583,y=421]
+1793899202472 SPAWN point=java.awt.Point[x=583,y=421] panelSize=1366x705
+1793899202549 PRESS comp=ClickButton local=java.awt.Point[x=211,y=38] panel=java.awt.Point[x=578,y=418]
+1793899202636 CLICK action point=java.awt.Point[x=578,y=418]
+1793899202637 SPAWN point=java.awt.Point[x=578,y=418] panelSize=1366x705
+1793899202718 PRESS comp=ClickButton local=java.awt.Point[x=211,y=38] panel=java.awt.Point[x=578,y=418]
+1793899202809 CLICK action point=java.awt.Point[x=578,y=418]
+1793899202809 SPAWN point=java.awt.Point[x=578,y=418] panelSize=1366x705
+1793899202883 PRESS comp=ClickButton local=java.awt.Point[x=210,y=38] panel=java.awt.Point[x=577,y=418]
+1793899202996 CLICK action point=java.awt.Point[x=577,y=418]
+1793899202996 SPAWN point=java.awt.Point[x=577,y=418] panelSize=1366x705
+1793899203041 PRESS comp=ClickButton local=java.awt.Point[x=210,y=38] panel=java.awt.Point[x=577,y=418]
+1793899203159 CLICK action point=java.awt.Point[x=577,y=418]
+1793899203159 SPAWN point=java.awt.Point[x=577,y=418] panelSize=1366x705
+1793899203281 PRESS comp=ClickButton local=java.awt.Point[x=210,y=38] panel=java.awt.Point[x=577,y=418]
+1793899203338 CLICK action point=java.awt.Point[x=577,y=418]
+1793899203338 SPAWN point=java.awt.Point[x=577,y=418] panelSize=1366x705
+1793899203424 PRESS comp=ClickButton local=java.awt.Point[x=210,y=38] panel=java.awt.Point[x=577,y=418]
+1793899203508 CLICK action point=java.awt.Point[x=577,y=418]
+1793899203509 SPAWN point=java.awt.Point[x=577,y=418] panelSize=1366x705
+1793899203659 PRESS comp=ClickButton local=java.awt.Point[x=210,y=38] panel=java.awt.Point[x=577,y=418]
+1793899203718 CLICK action point=java.awt.Point[x=577,y=418]
+1793899203718 SPAWN point=java.awt.Point[x=577,y=418] panelSize=1366x705
+1793899203813 PRESS comp=ClickButton local=java.awt.Point[x=210,y=38] panel=java.awt.Point[x=577,y=418]
+1793899203893 CLICK action point=java.awt.Point[x=577,y=418]
+1793899203893 SPAWN point=java.awt.Point[x=577,y=418] panelSize=1366x705
+1793899204054 PRESS comp=ClickButton local=java.awt.Point[x=210,y=38] panel=java.awt.Point[x=577,y=418]
+1793899204114 CLICK action point=java.awt.Point[x=577,y=418]
+1793899204115 SPAWN point=java.awt.Point[x=577,y=418] panelSize=1366x705
+1793899204219 PRESS comp=ClickButton local=java.awt.Point[x=210,y=38] panel=java.awt.Point[x=577,y=418]
+1793899204313 CLICK action point=java.awt.Point[x=577,y=418]
+1793899204314 SPAWN point=java.awt.Point[x=577,y=418] panelSize=1366x705
+1793899204315 PRESS comp=ClickButton local=java.awt.Point[x=210,y=37] panel=java.awt.Point[x=577,y=417]
+1793899204453 CLICK action point=java.awt.Point[x=577,y=417]
+1793899204454 SPAWN point=java.awt.Point[x=577,y=417] panelSize=1366x705
+1793899204492 PRESS comp=ClickButton local=java.awt.Point[x=210,y=37] panel=java.awt.Point[x=577,y=417]
+1793899204574 CLICK action point=java.awt.Point[x=577,y=417]
+1793899204575 SPAWN point=java.awt.Point[x=577,y=417] panelSize=1366x705
+1793899204701 PRESS comp=ClickButton local=java.awt.Point[x=210,y=37] panel=java.awt.Point[x=577,y=417]
+1793899204761 CLICK action point=java.awt.Point[x=577,y=417]
+1793899204761 SPAWN point=java.awt.Point[x=577,y=417] panelSize=1366x705
+1793899204859 PRESS comp=ClickButton local=java.awt.Point[x=210,y=37] panel=java.awt.Point[x=577,y=417]
+1793899205086 CLICK action point=java.awt.Point[x=577,y=417]
+1793899205088 SPAWN point=java.awt.Point[x=577,y=417] panelSize=1366x705
+1793899205161 PRESS comp=ClickButton local=java.awt.Point[x=206,y=39] panel=java.awt.Point[x=573,y=419]
+1793899205273 CLICK action point=java.awt.Point[x=573,y=419]
+1793899205273 SPAWN point=java.awt.Point[x=573,y=419] panelSize=1366x705
+1793899205386 PRESS comp=ClickButton local=java.awt.Point[x=206,y=39] panel=java.awt.Point[x=573,y=419]
+1793899205866 CLICK action point=java.awt.Point[x=573,y=419]
+1793899205866 SPAWN point=java.awt.Point[x=573,y=419] panelSize=1366x705
+1793899206000 PRESS comp=ClickButton local=java.awt.Point[x=206,y=39] panel=java.awt.Point[x=573,y=419]
+1793899206090 CLICK action point=java.awt.Point[x=573,y=419]
+1793899206090 SPAWN point=java.awt.Point[x=573,y=419] panelSize=1366x705
+1793899206165 PRESS comp=ClickButton local=java.awt.Point[x=206,y=39] panel=java.awt.Point[x=573,y=419]
+1793899206241 CLICK action point=java.awt.Point[x=573,y=419]
+1793899206242 SPAWN point=java.awt.Point[x=573,y=419] panelSize=1366x705
+1793899206394 PRESS comp=ClickButton local=java.awt.Point[x=206,y=39] panel=java.awt.Point[x=573,y=419]
+1793899206479 CLICK action point=java.awt.Point[x=573,y=419]
+1793899206480 SPAWN point=java.awt.Point[x=573,y=419] panelSize=1366x705
+1793899206943 PRESS comp=ClickButton local=java.awt.Point[x=206,y=39] panel=java.awt.Point[x=573,y=419]
+1793899207028 CLICK action point=java.awt.Point[x=573,y=419]
+1793899207029 SPAWN point=java.awt.Point[x=573,y=419] panelSize=1366x705
+1793899207151 PRESS comp=ClickButton local=java.awt.Point[x=206,y=39] panel=java.awt.Point[x=573,y=419]
+1793899207272 CLICK action point=java.awt.Point[x=573,y=419]
+1793899207272 SPAWN point=java.awt.Point[x=573,y=419] panelSize=1366x705
+1793899207384 PRESS comp=ClickButton local=java.awt.Point[x=206,y=39] panel=java.awt.Point[x=573,y=419]
+1793899208138 CLICK action point=java.awt.Point[x=573,y=419]
+1793899208138 SPAWN point=java.awt.Point[x=573,y=419] panelSize=1366x705
+1793899208211 PRESS comp=ClickButton local=java.awt.Point[x=206,y=39] panel=java.awt.Point[x=573,y=419]
+1793899208286 CLICK action point=java.awt.Point[x=573,y=419]
+1793899208287 SPAWN point=java.awt.Point[x=573,y=419] panelSize=1366x705
+1793899208399 PRESS comp=ClickButton local=java.awt.Point[x=206,y=39] panel=java.awt.Point[x=573,y=419]
+1793899208475 CLICK action point=java.awt.Point[x=573,y=419]
+1793899208476 SPAWN point=java.awt.Point[x=573,y=419] panelSize=1366x705
+1793899208550 PRESS comp=ClickButton local=java.awt.Point[x=206,y=39] panel=java.awt.Point[x=573,y=419]
+1793899208662 CLICK action point=java.awt.Point[x=573,y=419]
+1793899208663 SPAWN point=java.awt.Point[x=573,y=419] panelSize=1366x705
+1793899208737 PRESS comp=ClickButton local=java.awt.Point[x=206,y=39] panel=java.awt.Point[x=573,y=419]
+1793899208813 CLICK action point=java.awt.Point[x=573,y=419]
+1793899208813 SPAWN point=java.awt.Point[x=573,y=419] panelSize=1366x705
+1793899208887 PRESS comp=ClickButton local=java.awt.Point[x=206,y=39] panel=java.awt.Point[x=573,y=419]
+1793899208964 CLICK action point=java.awt.Point[x=573,y=419]
+1793899208964 SPAWN point=java.awt.Point[x=573,y=419] panelSize=1366x705
+1793899209039 PRESS comp=ClickButton local=java.awt.Point[x=206,y=39] panel=java.awt.Point[x=573,y=419]
+1793899209116 CLICK action point=java.awt.Point[x=573,y=419]
+1793899209116 SPAWN point=java.awt.Point[x=573,y=419] panelSize=1366x705
+1793899209238 PRESS comp=ClickButton local=java.awt.Point[x=206,y=39] panel=java.awt.Point[x=573,y=419]
+1793899209280 CLICK action point=java.awt.Point[x=573,y=419]
+1793899209280 SPAWN point=java.awt.Point[x=573,y=419] panelSize=1366x705
+1793899209353 PRESS comp=ClickButton local=java.awt.Point[x=206,y=39] panel=java.awt.Point[x=573,y=419]
+1793899209466 CLICK action point=java.awt.Point[x=573,y=419]
+1793899209467 SPAWN point=java.awt.Point[x=573,y=419] panelSize=1366x705
+1793899209541 PRESS comp=ClickButton local=java.awt.Point[x=206,y=39] panel=java.awt.Point[x=573,y=419]
+1793899209580 CLICK action point=java.awt.Point[x=573,y=419]
+1793899209580 SPAWN point=java.awt.Point[x=573,y=419] panelSize=1366x705
+1793899270241 PRESS comp=ClickButton local=java.awt.Point[x=210,y=79] panel=java.awt.Point[x=577,y=459]
+1793899270344 CLICK action point=java.awt.Point[x=577,y=459]
+1793899270344 SPAWN point=java.awt.Point[x=577,y=459] panelSize=1366x705
+1793899270449 PRESS comp=ClickButton local=java.awt.Point[x=210,y=79] panel=java.awt.Point[x=577,y=459]
+1793899270508 CLICK action point=java.awt.Point[x=577,y=459]
+1793899270509 SPAWN point=java.awt.Point[x=577,y=459] panelSize=1366x705
+1793899270629 PRESS comp=ClickButton local=java.awt.Point[x=210,y=79] panel=java.awt.Point[x=577,y=459]
+1793899270693 CLICK action point=java.awt.Point[x=577,y=459]
+1793899270693 SPAWN point=java.awt.Point[x=577,y=459] panelSize=1366x705
+1793899270759 PRESS comp=ClickButton local=java.awt.Point[x=210,y=79] panel=java.awt.Point[x=577,y=459]
+1793899270894 CLICK action point=java.awt.Point[x=577,y=459]
+1793899270894 SPAWN point=java.awt.Point[x=577,y=459] panelSize=1366x705
+1793899270964 PRESS comp=ClickButton local=java.awt.Point[x=210,y=79] panel=java.awt.Point[x=577,y=459]
+1793899271018 CLICK action point=java.awt.Point[x=577,y=459]
+1793899271019 SPAWN point=java.awt.Point[x=577,y=459] panelSize=1366x705
+1793899271071 PRESS comp=ClickButton local=java.awt.Point[x=210,y=79] panel=java.awt.Point[x=577,y=459]
+1793899271181 CLICK action point=java.awt.Point[x=577,y=459]
+1793899271182 SPAWN point=java.awt.Point[x=577,y=459] panelSize=1366x705
+1793899271235 PRESS comp=ClickButton local=java.awt.Point[x=210,y=79] panel=java.awt.Point[x=577,y=459]
+1793899271344 CLICK action point=java.awt.Point[x=577,y=459]
+1793899271344 SPAWN point=java.awt.Point[x=577,y=459] panelSize=1366x705
+1793899271396 PRESS comp=ClickButton local=java.awt.Point[x=210,y=79] panel=java.awt.Point[x=577,y=459]
+1793899271483 CLICK action point=java.awt.Point[x=577,y=459]
+1793899271483 SPAWN point=java.awt.Point[x=577,y=459] panelSize=1366x705
+1793899271528 PRESS comp=ClickButton local=java.awt.Point[x=210,y=79] panel=java.awt.Point[x=577,y=459]
+1793899271659 CLICK action point=java.awt.Point[x=577,y=459]
+1793899271659 SPAWN point=java.awt.Point[x=577,y=459] panelSize=1366x705
+1793899271713 PRESS comp=ClickButton local=java.awt.Point[x=210,y=79] panel=java.awt.Point[x=577,y=459]
+1793899271821 CLICK action point=java.awt.Point[x=577,y=459]
+1793899271821 SPAWN point=java.awt.Point[x=577,y=459] panelSize=1366x705
+1793899271886 PRESS comp=ClickButton local=java.awt.Point[x=210,y=79] panel=java.awt.Point[x=577,y=459]
+1793899271948 CLICK action point=java.awt.Point[x=577,y=459]
+1793899271948 SPAWN point=java.awt.Point[x=577,y=459] panelSize=1366x705
+1793899272064 PRESS comp=ClickButton local=java.awt.Point[x=210,y=79] panel=java.awt.Point[x=577,y=459]
+1793899272124 CLICK action point=java.awt.Point[x=577,y=459]
+1793899272125 SPAWN point=java.awt.Point[x=577,y=459] panelSize=1366x705
+1793899272180 PRESS comp=ClickButton local=java.awt.Point[x=210,y=79] panel=java.awt.Point[x=577,y=459]
+1793899272244 CLICK action point=java.awt.Point[x=577,y=459]
+1793899272244 SPAWN point=java.awt.Point[x=577,y=459] panelSize=1366x705
+1793899272367 PRESS comp=ClickButton local=java.awt.Point[x=210,y=79] panel=java.awt.Point[x=577,y=459]
+1793899272426 CLICK action point=java.awt.Point[x=577,y=459]
+1793899272427 SPAWN point=java.awt.Point[x=577,y=459] panelSize=1366x705
+1793899272509 PRESS comp=ClickButton local=java.awt.Point[x=210,y=79] panel=java.awt.Point[x=577,y=459]
+1793899272586 CLICK action point=java.awt.Point[x=577,y=459]
+1793899272586 SPAWN point=java.awt.Point[x=577,y=459] panelSize=1366x705
+1793899277217 PRESS comp=ClickButton local=java.awt.Point[x=179,y=52] panel=java.awt.Point[x=546,y=432]
+1793899277296 CLICK action point=java.awt.Point[x=546,y=432]
+1793899277296 SPAWN point=java.awt.Point[x=546,y=432] panelSize=1366x705
+1793899277376 PRESS comp=ClickButton local=java.awt.Point[x=179,y=52] panel=java.awt.Point[x=546,y=432]
+1793899277514 CLICK action point=java.awt.Point[x=546,y=432]
+1793899277514 SPAWN point=java.awt.Point[x=546,y=432] panelSize=1366x705
+1793899277575 PRESS comp=ClickButton local=java.awt.Point[x=179,y=52] panel=java.awt.Point[x=546,y=432]
+1793899277634 CLICK action point=java.awt.Point[x=546,y=432]
+1793899277635 SPAWN point=java.awt.Point[x=546,y=432] panelSize=1366x705
+1793899277757 PRESS comp=ClickButton local=java.awt.Point[x=179,y=52] panel=java.awt.Point[x=546,y=432]
+1793899277820 CLICK action point=java.awt.Point[x=546,y=432]
+1793899277820 SPAWN point=java.awt.Point[x=546,y=432] panelSize=1366x705
+1793899277883 PRESS comp=ClickButton local=java.awt.Point[x=179,y=52] panel=java.awt.Point[x=546,y=432]
+1793899278014 CLICK action point=java.awt.Point[x=546,y=432]
+1793899278015 SPAWN point=java.awt.Point[x=546,y=432] panelSize=1366x705
+1793899278080 PRESS comp=ClickButton local=java.awt.Point[x=179,y=52] panel=java.awt.Point[x=546,y=432]
+1793899278143 CLICK action point=java.awt.Point[x=546,y=432]
+1793899278144 SPAWN point=java.awt.Point[x=546,y=432] panelSize=1366x705
+1793899278209 PRESS comp=ClickButton local=java.awt.Point[x=179,y=52] panel=java.awt.Point[x=546,y=432]
+1793899278464 CLICK action point=java.awt.Point[x=546,y=432]
+1793899278464 SPAWN point=java.awt.Point[x=546,y=432] panelSize=1366x705
+1793899278525 PRESS comp=ClickButton local=java.awt.Point[x=179,y=52] panel=java.awt.Point[x=546,y=432]
+1793899278640 CLICK action point=java.awt.Point[x=546,y=432]
+1793899278641 SPAWN point=java.awt.Point[x=546,y=432] panelSize=1366x705
+1793899278695 PRESS comp=ClickButton local=java.awt.Point[x=179,y=52] panel=java.awt.Point[x=546,y=432]
+1793899278809 CLICK action point=java.awt.Point[x=546,y=432]
+1793899278809 SPAWN point=java.awt.Point[x=546,y=432] panelSize=1366x705
+1793899278860 PRESS comp=ClickButton local=java.awt.Point[x=179,y=52] panel=java.awt.Point[x=546,y=432]
+1793899279003 CLICK action point=java.awt.Point[x=546,y=432]
+1793899279003 SPAWN point=java.awt.Point[x=546,y=432] panelSize=1366x705
+1793899279067 PRESS comp=ClickButton local=java.awt.Point[x=179,y=52] panel=java.awt.Point[x=546,y=432]
+1793899279137 CLICK action point=java.awt.Point[x=546,y=432]
+1793899279138 SPAWN point=java.awt.Point[x=546,y=432] panelSize=1366x705
+1793899279200 PRESS comp=ClickButton local=java.awt.Point[x=179,y=52] panel=java.awt.Point[x=546,y=432]
+1793899279263 CLICK action point=java.awt.Point[x=546,y=432]
+1793899279263 SPAWN point=java.awt.Point[x=546,y=432] panelSize=1366x705
+1793899279314 PRESS comp=ClickButton local=java.awt.Point[x=179,y=52] panel=java.awt.Point[x=546,y=432]
+1793899279437 CLICK action point=java.awt.Point[x=546,y=432]
+1793899279437 SPAWN point=java.awt.Point[x=546,y=432] panelSize=1366x705
+1793899279509 PRESS comp=ClickButton local=java.awt.Point[x=186,y=49] panel=java.awt.Point[x=553,y=429]
+1793899279633 CLICK action point=java.awt.Point[x=553,y=429]
+1793899279634 SPAWN point=java.awt.Point[x=553,y=429] panelSize=1366x705
+1793900362366 PRESS comp=ClickButton local=java.awt.Point[x=312,y=3] panel=java.awt.Point[x=679,y=379]
+1793900362566 CLICK action point=java.awt.Point[x=679,y=379]
+1793900362567 SPAWN point=java.awt.Point[x=679,y=379] panelSize=1366x705
+1793900362734 PRESS comp=ClickButton local=java.awt.Point[x=302,y=28] panel=java.awt.Point[x=669,y=408]
+1793900362735 CLICK action point=java.awt.Point[x=669,y=408]
+1793900362736 SPAWN point=java.awt.Point[x=669,y=408] panelSize=1366x705
+1793900362840 PRESS comp=ClickButton local=java.awt.Point[x=302,y=28] panel=java.awt.Point[x=669,y=408]
+1793900362991 CLICK action point=java.awt.Point[x=669,y=408]
+1793900362991 SPAWN point=java.awt.Point[x=669,y=408] panelSize=1366x705
+1793900362993 PRESS comp=ClickButton local=java.awt.Point[x=302,y=28] panel=java.awt.Point[x=669,y=408]
+1793900363076 CLICK action point=java.awt.Point[x=669,y=408]
+1793900363076 SPAWN point=java.awt.Point[x=669,y=408] panelSize=1366x705
+1793900363155 PRESS comp=ClickButton local=java.awt.Point[x=302,y=28] panel=java.awt.Point[x=669,y=408]
+1793900363230 CLICK action point=java.awt.Point[x=669,y=408]
+1793900363230 SPAWN point=java.awt.Point[x=669,y=408] panelSize=1366x705
+1793900363298 PRESS comp=ClickButton local=java.awt.Point[x=302,y=28] panel=java.awt.Point[x=669,y=408]
+1793900363425 CLICK action point=java.awt.Point[x=669,y=408]
+1793900363483 SPAWN point=java.awt.Point[x=669,y=408] panelSize=1366x705
+1793900363549 PRESS comp=ClickButton local=java.awt.Point[x=202,y=64] panel=java.awt.Point[x=569,y=444]
+1793900363611 CLICK action point=java.awt.Point[x=569,y=444]
+1793900363612 SPAWN point=java.awt.Point[x=569,y=444] panelSize=1366x705
+1793900363745 PRESS comp=ClickButton local=java.awt.Point[x=186,y=70] panel=java.awt.Point[x=553,y=450]
+1793900363811 CLICK action point=java.awt.Point[x=553,y=450]
+1793900363811 SPAWN point=java.awt.Point[x=553,y=450] panelSize=1366x705
+1793900363876 PRESS comp=ClickButton local=java.awt.Point[x=186,y=70] panel=java.awt.Point[x=553,y=450]
+1793900364021 CLICK action point=java.awt.Point[x=553,y=450]
+1793900364021 SPAWN point=java.awt.Point[x=553,y=450] panelSize=1366x705
+1793900364101 PRESS comp=ClickButton local=java.awt.Point[x=186,y=69] panel=java.awt.Point[x=553,y=449]
+1793900364181 CLICK action point=java.awt.Point[x=553,y=449]
+1793900364181 SPAWN point=java.awt.Point[x=553,y=449] panelSize=1366x705
+1793900364183 PRESS comp=ClickButton local=java.awt.Point[x=186,y=67] panel=java.awt.Point[x=553,y=447]
+1793900364286 CLICK action point=java.awt.Point[x=553,y=447]
+1793900364286 SPAWN point=java.awt.Point[x=553,y=447] panelSize=1366x705
+1793900364375 PRESS comp=ClickButton local=java.awt.Point[x=186,y=66] panel=java.awt.Point[x=553,y=446]
+1793900364464 CLICK action point=java.awt.Point[x=553,y=446]
+1793900364464 SPAWN point=java.awt.Point[x=553,y=446] panelSize=1366x705
