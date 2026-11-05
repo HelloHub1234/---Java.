@@ -27,7 +27,7 @@
 
 ```powershell
 New-Item -ItemType Directory -Force -Path classes | Out-Null
-javac -encoding UTF-8 -d classes src/WindowApps/Basic.java (Get-ChildItem src/WindowApps/clicker/*.java)
+javac -encoding UTF-8 -d classes (Get-ChildItem src/WindowApps/*.java) (Get-ChildItem src/WindowApps/clicker/*.java)
 Copy-Item src/WindowApps/messages*.properties classes/WindowApps/
 java -cp classes WindowApps.clicker.Clicker
 ```
@@ -35,6 +35,15 @@ java -cp classes WindowApps.clicker.Clicker
 `-encoding UTF-8` обязателен: исходники и ресурсы содержат кириллицу. Копировать
 `messages*.properties` в `classes` нужно обязательно — без них интерфейс покажет ключи
 ресурсов вместо текста.
+
+Готовая сборка `.exe` (со встроенной Java и иконкой) — одной командой:
+
+```powershell
+pwsh -File tools/build-clicker.ps1   # → dist/Clicker-windows.zip и dist/clicker.jar
+```
+
+Иконку окна и `.exe` рисует код (`src/WindowApps/AppIconPainter.java`); файл `assets/clicker.ico`
+перегенерируется после правок: `pwsh -File tools/generate-icon.ps1`.
 
 ### Где лежит прогресс
 
@@ -61,6 +70,7 @@ src/
   Main.java                     # пустая заглушка, в сборку не входит
   WindowApps/                   # общий каркас UI + кликер
     Basic.java                  # базовое окно: темы, кнопки, частицы, actions
+    AppIconPainter.java         # иконка приложения (общая для окна и .exe)
     Theme.java                  # палитры (STANDARD, CYBERPUNK, FOREST, SOLAR)
     Text.java                   # i18n через ResourceBundle
     ProgressSnapshot.java       # снимок состояния прогресса
@@ -68,6 +78,8 @@ src/
     messages*.properties        # локали: ru (default), en, de, es, fr
     clicker/                    # приложение «Кликер»
   MyGames/                      # консольные игры
+  tools/IconExport.java         # генератор assets/clicker.ico
+assets/clicker.ico              # иконка .exe
 .github/workflows/build.yml     # CI: сборка jar и app-image для кликера
 AGENTS.md                       # соглашения для контрибьюторов и AI-агентов
 ```

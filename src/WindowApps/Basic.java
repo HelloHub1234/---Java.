@@ -169,32 +169,12 @@ public class Basic {
         return icons;
     }
 
+    /**
+     * Иконка окна: тот же рисунок, что и у .exe (см. {@link AppIconPainter}), но с прозрачным
+     * скруглённым «воздухом», чтобы в панели задач Windows она смотрелась как обычная иконка.
+     */
     protected Image paintAppIcon(int size) {
-        BufferedImage image = new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB);
-        Graphics2D g2 = image.createGraphics();
-        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g2.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE);
-
-        float inset = size * 0.06f;
-        g2.setPaint(new GradientPaint(0, 0, activeTheme.getAccent(), 0, size, activeTheme.getBackgroundBottom()));
-        g2.fillRoundRect(Math.round(inset), Math.round(inset),
-                Math.round(size - 2 * inset), Math.round(size - 2 * inset),
-                Math.round(size * 0.28f), Math.round(size * 0.28f));
-
-        int arrow = Math.round(size * 0.5f);
-        int head = Math.round(size * 0.30f);
-        int wing = Math.round(size * 0.16f);
-        int left = Math.round(size * 0.34f);
-        int top = Math.round(size * 0.26f);
-        int[] xs = {left, left + arrow, left + arrow, left + arrow + wing, left + arrow, left + arrow, left};
-        int[] ys = {top, top, top + arrow - wing, top + arrow + head / 2, top + arrow + head / 2 + head,
-                top + arrow + head / 2 + head, top + arrow - wing};
-        g2.setColor(activeTheme.getText());
-        g2.setStroke(new BasicStroke(Math.max(1f, size * 0.06f), BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-        g2.drawPolyline(xs, ys, xs.length - 1);
-
-        g2.dispose();
-        return image;
+        return AppIconPainter.renderPadded(size, activeTheme);
     }
 
     protected void initActions() {

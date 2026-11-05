@@ -23,6 +23,8 @@ dist/
 .neo/
 .veai/
 .tasks/
+.icon-build/
+.verify/
 
 ### Eclipse ###
 .apt_generated

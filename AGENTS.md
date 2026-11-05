@@ -17,6 +17,7 @@
 ```
 src/WindowApps/                 # общий каркас (переиспользуется приложениями)
   Basic.java                    # базовое окно: темы, кнопки, частицы, actions, restart()
+  AppIconPainter.java           # единственный источник иконки: окно + assets/clicker.ico для .exe
   Theme.java                    # enum палитр (STANDARD, CYBERPUNK, FOREST, SOLAR) + byName()
   Text.java                     # i18n через ResourceBundle
   ProgressSnapshot.java         # снимок состояния прогресса
@@ -31,6 +32,10 @@ src/WindowApps/                 # общий каркас (переисполь�
     SettingsDialog.java         # окно настроек: язык и тема
     ClickerTheme.java           # константы размеров, шрифтов, задержек
 src/MyGames/                    # консольные мини-игры, точка входа Launcher.java
+src/tools/IconExport.java       # генератор assets/clicker.ico (headless, окно не открывает)
+assets/clicker.ico              # иконка .exe для jpackage --icon (коммитится)
+tools/build-clicker.ps1         # локальная сборка Clicker-windows.zip (зеркало CI)
+tools/generate-icon.ps1         # перегенерация .ico после правок AppIconPainter
 .github/workflows/build.yml     # CI: сборка jar и app-image (только кликер)
 README.md                       # пользовательское описание проекта
 ```
@@ -61,8 +66,23 @@ java -cp classes MyGames.Launcher
 
 Полный пайплайн (в CI, `windows-latest`, JDK 21): `javac` → `jar --create --main-class WindowApps.clicker.Clicker`
 → `jpackage --type app-image` → артефакт `dist/Clicker-windows.zip`. Тег `v*` дополнительно
-публикует релиз на GitHub. Локальную сборку удобнее запускать через конфигурации IDE.
+публикует релиз на GitHub. Тот же пайплайн локально: `pwsh -File tools/build-clicker.ps1`.
 `src/MyGames` в CI не собирается — только вручную или из IDE.
+
+## Иконка приложения
+
+Рисуется кодом в `WindowApps.AppIconPainter` (градиент в цветах темы + курсор-стрелка), а не берётся из картинки:
+окно показывает её через `Basic.createAppIcons()` и перекрашивает при смене темы. Чтобы `.exe` и окно
+совпадали, `src/tools/IconExport.java` рендерит тот же рисунок в `assets/clicker.ico` (7 размеров),
+а CI передаёт его в `jpackage --icon`. Поменяли геометрию — перегенерируйте `.ico`:
+
+```powershell
+pwsh -File tools/generate-icon.ps1
+```
+
+`.ico` коммитится в репозиторий, потому что CI не запускает генератор (лишний шаг сборки; при расхождении
+иконка просто станет старой версии). Смена `--icon` у уже установленного `Clicker.exe` не подхватывается —
+ярлык может кэшировать старую иконку.
 
 ## Стиль кода и соглашения
 
@@ -92,5 +112,5 @@ java -cp classes MyGames.Launcher
   (`добавить магазин апгрейдов`, `исправить сохранение прогресса`).
 - PR: опишите изменение и затронутые файлы, приложите скриншот UI до/после для визуальных правок,
   убедитесь, что CI-джоба `build-clicker` зелёная.
-- Не коммитьте `config.properties` и `clicker.sav` с локальным прогрессом, `out/`, `classes/`, `dist/`,
-  `.idea/`, `.aiforopenide/`, `.neo/`, `.veai/`.
+- Не коммитьте конфигурацию и локальный прогресс: `config.properties`, `clicker.sav`, `out/`, `classes/`, `dist/`,
+  `.icon-build/`, `.idea/`, `.aiforopenide/`, `.neo/`, `.veai/`.
