@@ -33,6 +33,11 @@ Write-Host '== Compile' -ForegroundColor Cyan
 javac -encoding UTF-8 -d classes (Get-ChildItem src/WindowApps/*.java) (Get-ChildItem src/WindowApps/clicker/*.java)
 if ($LASTEXITCODE -ne 0) { throw 'javac failed' }
 Copy-Item src/WindowApps/messages*.properties classes/WindowApps/
+# Icon inside the jar as well: this is what tools that read the archive (and the window itself,
+# if it ever looks it up) can pick up. Explorer still draws its own per-association icon for .jar.
+if (Test-Path $icon) {
+    Copy-Item $icon classes/WindowApps/clicker.ico
+}
 
 Write-Host '== Jar' -ForegroundColor Cyan
 jar --create --file dist/clicker.jar --main-class WindowApps.clicker.Clicker -C classes WindowApps

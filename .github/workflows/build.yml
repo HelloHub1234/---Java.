@@ -34,6 +34,8 @@ jobs:
           javac -encoding UTF-8 -d classes (Get-ChildItem src/WindowApps/*.java) (Get-ChildItem src/WindowApps/clicker/*.java)
           # messages*.properties читаются через ResourceBundle, поэтому должны лежать в classpath
           Copy-Item src/WindowApps/messages*.properties classes/WindowApps/
+          # Иконку во вторую jar-сборку тоже кладём: её видят инструменты, читающие архив
+          Copy-Item assets/clicker.ico classes/WindowApps/clicker.ico
 
       - name: Build runnable jar
         run: |

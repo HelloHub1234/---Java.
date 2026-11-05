@@ -56,6 +56,13 @@ public class Clicker extends Basic {
             }
         });
 
+        // storage.load() идёт ПОСЛЕ сборки UI: без него игра стартует с нуля, clicker.sav не
+        // читается, а hasUnsavedChanges() всегда false — поэтому при выходе прогресс терялся.
+        storage.load();
+        applyTheme(progress.getTheme());
+        showCount();
+        resume();
+        startBackgroundAnimation();
     }
 
     /** Запоминает точку нажатия в координатах панели (компоненты любого уровня вложенности). */
