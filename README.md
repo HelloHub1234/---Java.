@@ -39,11 +39,11 @@ java -cp classes WindowApps.clicker.Clicker
 Готовая сборка `.exe` (со встроенной Java и иконкой) — одной командой:
 
 ```powershell
-pwsh -File tools/build-clicker.ps1   # → dist/Clicker-windows.zip и dist/clicker.jar
+powershell -File tools/build-clicker.ps1   # -> dist/Clicker-windows.zip and dist/clicker.jar
 ```
 
 Иконку окна и `.exe` рисует код (`src/WindowApps/AppIconPainter.java`); файл `assets/clicker.ico`
-перегенерируется после правок: `pwsh -File tools/generate-icon.ps1`.
+перегенерируется после правок: `powershell -File tools/generate-icon.ps1` (флаг `-NoIcon` собирает без иконки).
 
 ### Где лежит прогресс
 

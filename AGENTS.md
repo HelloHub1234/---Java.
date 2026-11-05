@@ -66,7 +66,7 @@ java -cp classes MyGames.Launcher
 
 Полный пайплайн (в CI, `windows-latest`, JDK 21): `javac` → `jar --create --main-class WindowApps.clicker.Clicker`
 → `jpackage --type app-image` → артефакт `dist/Clicker-windows.zip`. Тег `v*` дополнительно
-публикует релиз на GitHub. Тот же пайплайн локально: `pwsh -File tools/build-clicker.ps1`.
+публикует релиз на GitHub. Тот же пайплайн локально: `powershell -File tools/build-clicker.ps1`.
 `src/MyGames` в CI не собирается — только вручную или из IDE.
 
 ## Иконка приложения
@@ -77,8 +77,11 @@ java -cp classes MyGames.Launcher
 а CI передаёт его в `jpackage --icon`. Поменяли геометрию — перегенерируйте `.ico`:
 
 ```powershell
-pwsh -File tools/generate-icon.ps1
+powershell -File tools/generate-icon.ps1
 ```
+
+Скрипты в `tools/` держите в ASCII: Windows PowerShell 5.1 читает `.ps1` без BOM в ANSI-кодировке,
+и кириллица ломает парсер на русской локали.
 
 `.ico` коммитится в репозиторий, потому что CI не запускает генератор (лишний шаг сборки; при расхождении
 иконка просто станет старой версии). Смена `--icon` у уже установленного `Clicker.exe` не подхватывается —
