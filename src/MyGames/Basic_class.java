@@ -1,5 +1,6 @@
 package MyGames;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
 
 public class Basic_class {
@@ -12,7 +13,7 @@ public class Basic_class {
     protected int totalUserScore = 0;
     protected int gamesPlayed = 0;
 
-    protected static Scanner scanner = new Scanner(System.in);
+    protected static Scanner scanner = new Scanner(System.in, StandardCharsets.UTF_8);
     protected String answer;
 
     protected static String gameName;
@@ -29,6 +30,7 @@ public class Basic_class {
             startNewGame();
             playAgain = askPlayAgain();
         }
+        finishGame();
         printFarewell();
     }
     protected void startNewGame(){

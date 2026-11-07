@@ -24,14 +24,14 @@ public class Game_box extends Basic_class{
         printTitle();
         playAgain = true;
         while (playAgain) {
-            startNewGame();
-            if(level > MAX_LEVEL){
+            if (level > MAX_LEVEL) {
                 System.out.println();
                 System.out.println("========================================");
                 System.out.println("   *** Игра окончена!!!!");
                 System.out.println("========================================");
                 break;
             }
+            startNewGame();
             playAgain = askPlayAgain();
         }
         printFarewell();

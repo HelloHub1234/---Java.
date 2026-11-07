@@ -1,9 +1,6 @@
 package MyGames;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
+import java.util.NoSuchElementException;
 
 /**
  * Точка входа пакета MyGames: выбирает, какую из консольных игр запустить.
@@ -15,19 +12,16 @@ public class Launcher {
     }
 
     public static void main(String[] args) {
-        // Scanner не закрываем: System.in не должен закрываться, а BufferedReader после игр
-        // (со своим Scanner(System.in)) при закрытии утащил бы за собой стандартный ввод
-        BufferedReader in = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.UTF_8));
         while (true) {
             printMenu();
-            String choice = readLine(in);
+            String choice = readLine();
             if (choice == null) {
                 return;
             }
             switch (choice.trim()) {
-                case "1" -> start(new Game_rand(), in);
-                case "2" -> start(new Game_kmn(), in);
-                case "3" -> start(new Game_box(), in);
+                case "1" -> start(new Game_rand());
+                case "2" -> start(new Game_kmn());
+                case "3" -> start(new Game_box());
                 case "0", "q", "exit" -> {
                     System.out.println("До встречи!");
                     return;
@@ -37,10 +31,10 @@ public class Launcher {
         }
     }
 
-    private static String readLine(BufferedReader in) {
+    private static String readLine() {
         try {
-            return in.readLine();
-        } catch (IOException e) {
+            return Basic_class.scanner.nextLine();
+        } catch (NoSuchElementException e) {
             return null;
         }
     }
@@ -58,12 +52,12 @@ public class Launcher {
         System.out.print("Выбор: ");
     }
 
-    private static void start(Basic_class game, BufferedReader in) {
+    private static void start(Basic_class game) {
         // игра уже отработала в конструкторе; предлагаем новую серию без выхода в меню
         while (true) {
             System.out.println();
             System.out.print("Начать новую серию? (да/нет): ");
-            String answer = readLine(in);
+            String answer = readLine();
             if (answer == null || !isYes(answer)) {
                 System.out.println();
                 System.out.println("Возврат в меню...");

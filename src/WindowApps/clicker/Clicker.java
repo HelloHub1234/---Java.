@@ -68,8 +68,6 @@ public class Clicker extends Basic {
     /** Запоминает точку нажатия в координатах панели (компоненты любого уровня вложенности). */
     private void rememberClickPoint(MouseEvent e) {
         lastClickPoint = SwingUtilities.convertPoint(e.getComponent(), e.getPoint(), panel);
-        WindowApps.clicker.ParticleDebug.log("PRESS comp=" + e.getComponent().getClass().getSimpleName()
-                + " local=" + e.getPoint() + " panel=" + lastClickPoint);
     }
 
     /** Подписывает компонент на запоминание точки нажатия. */
@@ -108,7 +106,6 @@ public class Clicker extends Basic {
         actions.put(EXIT, this::exitApplication);
         actions.put(ControlPanel.CLICK, () -> {
             progress.addClicks(progress.clicksPerAction());
-            WindowApps.clicker.ParticleDebug.log("CLICK action point=" + lastClickPoint);
             spawnParticles(lastClickPoint);
         });
         actions.put(ControlPanel.SHOP, () -> {

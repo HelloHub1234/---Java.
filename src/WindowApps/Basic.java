@@ -254,7 +254,6 @@ public class Basic {
      */
     protected void spawnParticles(Point origin) {
         Point point = origin == null ? new Point(panel.getWidth() / 2, panel.getHeight() / 2) : origin;
-        WindowApps.clicker.ParticleDebug.log("SPAWN point=" + point + " panelSize=" + panel.getWidth() + "x" + panel.getHeight());
         for (int i = 0; i < 14; i++) {
             double angle = random.nextDouble() * Math.PI * 2;
             double speed = 1.5 + random.nextDouble() * 3.5;
