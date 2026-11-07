@@ -16,9 +16,15 @@ jobs:
     defaults:
       run:
         shell: pwsh
+        # Имя репозитория заканчивается точкой, а Windows не может создать путь
+        # вида D:\a\---Java.\---Java.: точка в конце имени папки отбрасывается.
+        # Поэтому работаем из явного каталога без завершающей точки.
+        working-directory: C:\build
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          path: 'C:\build'
 
       # Упаковка апп-образа требует JDK 17+; 21 совпадает с локальной сборкой.
       - uses: actions/setup-java@v4
@@ -53,9 +59,10 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: Clicker-windows
+          # Пути абсолютные: GITHUB_WORKSPACE с точкой в конце имени не существует
           path: |
-            dist/Clicker-windows.zip
-            dist/clicker.jar
+            C:\build\dist\Clicker-windows.zip
+            C:\build\dist\clicker.jar
           if-no-files-found: error
 
       - name: Attach artifacts to release
@@ -71,5 +78,5 @@ jobs:
 
             Прогресс сохраняется автоматически в `%APPDATA%\Clicker`.
           files: |
-            dist/Clicker-windows.zip
-            dist/clicker.jar
+            C:\build\dist\Clicker-windows.zip
+            C:\build\dist\clicker.jar
