@@ -22,9 +22,22 @@ jobs:
         working-directory: C:\build
 
     steps:
-      - uses: actions/checkout@v4
-        with:
-          path: 'C:\build'
+      # actions/checkout разворачивает код в GITHUB_WORKSPACE, а путь
+      # D:\a\---Java.\---Java. Windows создать не может (точка в конце имени папки),
+      # поэтому клонируем вручную в каталог без завершающей точки.
+      - name: Checkout
+        shell: pwsh
+        working-directory: C:\
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $dir = 'C:\build'
+          Remove-Item -Recurse -Force $dir -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Force -Path $dir | Out-Null
+          git init --quiet $dir
+          git -C $dir remote add origin "https://github.com/${{ github.repository }}.git"
+          git -C $dir fetch --depth 1 origin "${{ github.ref }}"
+          git -C $dir checkout --quiet FETCH_HEAD
+          git -C $dir log --oneline -1
 
       # Упаковка апп-образа требует JDK 17+; 21 совпадает с локальной сборкой.
       - uses: actions/setup-java@v4
