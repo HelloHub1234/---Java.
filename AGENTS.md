@@ -25,13 +25,24 @@ src/WindowApps/                 # общий каркас (переисполь�
   ProgressStorage.java          # бинарное хранилище: HMAC-SHA256 + AES/GCM, clicker.sav
   messages*.properties          # локали: ru (default), en, de, es, fr
   clicker/                      # конкретное приложение «Кликер»
-    Clicker.java                # UI, действия, таймер автокликера
-    GameProgress.java           # бизнес-модель: клики, апгрейды, слушатели
-    ProgressStorage.java        # тонкая обёртка над WindowApps.ProgressStorage
-    ControlPanel.java           # вертикальная панель кнопок
-    ShopDialog.java             # окно магазина апгрейдов
-    SettingsDialog.java         # окно настроек: язык и тема
-    ClickerTheme.java           # константы размеров, шрифтов, задержек
+    Clicker.java                # точка входа: UI, действия, таймер автокликера
+    model/                      # бизнес-модель приложения
+      GameProgress.java         # клики, апгрейды, достижения, слушатели
+      Achievement.java          # перечень достижений и условия получения
+    storage/                    # сохранение прогресса
+      ProgressStorage.java      # тонкая обёртка над WindowApps.ProgressStorage
+    ui/                         # окна, панели и уведомления
+      ControlPanel.java         # нижняя панель кнопок
+      CountPanel.java           # счётчик и главная кнопка
+      ShopDialog.java           # окно магазина апгрейдов
+      AchievementDialog.java    # окно достижений
+      AchievementToast.java     # всплывающее уведомление о достижении
+      SettingsDialog.java       # окно настроек: язык и тема
+      component/                # переиспользуемые визуальные компоненты
+        CardPanel.java          # стеклянная карточка
+        ClickButton.java        # главная кнопка клика
+      theme/                    # оформление
+        ClickerTheme.java       # константы размеров, шрифтов, задержек
 src/MyGames/                    # консольные мини-игры, точка входа Launcher.java
 src/tools/IconExport.java       # генератор assets/clicker.ico (headless, окно не открывает)
 assets/clicker.ico              # иконка .exe для jpackage --icon (коммитится)
@@ -48,7 +59,7 @@ README.md                       # пользовательское описан�
 ```powershell
 # кликер: компиляция
 New-Item -ItemType Directory -Force -Path classes | Out-Null
-javac -encoding UTF-8 -d classes src/WindowApps/Basic.java (Get-ChildItem src/WindowApps/clicker/*.java)
+javac -encoding UTF-8 -d classes src/WindowApps/Basic.java (Get-ChildItem src/WindowApps/clicker/*.java -Recurse)
 
 # Исходники компилируются без ресурсов, но для UI нужны messages*.properties в classpath:
 Copy-Item src/WindowApps/messages*.properties classes/WindowApps/

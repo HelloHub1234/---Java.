@@ -1,7 +1,9 @@
-package WindowApps.clicker;
+package WindowApps.clicker.ui;
 
 import WindowApps.Basic;
 import WindowApps.Text;
+import WindowApps.clicker.model.GameProgress;
+import WindowApps.clicker.ui.theme.ClickerTheme;
 
 import javax.swing.*;
 import java.awt.*;

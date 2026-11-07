@@ -1,6 +1,7 @@
 package WindowApps;
 
-import WindowApps.clicker.GameProgress;
+import WindowApps.clicker.model.Achievement;
+import WindowApps.clicker.model.GameProgress;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -39,9 +40,11 @@ import javax.crypto.spec.SecretKeySpec;
  */
 public class ProgressStorage {
 
-    private static final byte[] FORMAT_MAGIC = {'C', 'L', 'K', '3'};
-    /** Версия 3: исправлена длина AES-ключа (в v2 ключ был 21 байт и шифрование падало). */
-    private static final byte FORMAT_VERSION = 3;
+    private static final byte[] FORMAT_MAGIC = {'C', 'L', 'K', '4'};
+    /** Версия 4: в прогресс добавлены полученные достижения. */
+    private static final byte FORMAT_VERSION = 4;
+    /** Версия 3: исправлена длина AES-ключа; достижений в файле нет. */
+    private static final byte PREVIOUS_FORMAT_VERSION = 3;
     private static final byte LEGACY_FORMAT_VERSION = 2;
     private static final int MAC_LENGTH = 32;
     private static final int NONCE_LENGTH = 12;
@@ -100,6 +103,9 @@ public class ProgressStorage {
         }
 
         if (record != null) {
+            // Сначала достижения из файла, затем состояние: setState доберёт те, что уже выполнены,
+            // но почему-то не были записаны, и ничего не потеряет.
+            progress.restoreAchievements(record.achievements());
             progress.setState(record.clicks(), record.clicksPerPress(), record.autoClickerLevel(),
                     record.multiplierLevel());
             Text.setLanguage(record.language());
@@ -135,6 +141,7 @@ public class ProgressStorage {
                 progress.getClicksPerPress(),
                 progress.getAutoClickerLevel(),
                 progress.getMultiplierLevel(),
+                progress.getUnlockedAchievements(),
                 Text.getLanguage(),
                 progress.getTheme().name());
 
@@ -177,10 +184,11 @@ public class ProgressStorage {
         boolean magicMatches = magic[0] == FORMAT_MAGIC[0] && magic[1] == FORMAT_MAGIC[1]
                 && magic[2] == FORMAT_MAGIC[2];
         byte version = buffer.get();
-        if (!magicMatches || (version != FORMAT_VERSION && version != LEGACY_FORMAT_VERSION)) {
+        if (!magicMatches || (version != FORMAT_VERSION && version != PREVIOUS_FORMAT_VERSION
+                && version != LEGACY_FORMAT_VERSION)) {
             return null;
         }
-        if (version == LEGACY_FORMAT_VERSION && magic[3] != '2') {
+        if (magic[3] != (byte) ('0' + version)) {
             return null;
         }
 
@@ -189,11 +197,11 @@ public class ProgressStorage {
         byte[] encrypted = new byte[buffer.remaining()];
         buffer.get(encrypted);
 
-        SecretKeySpec key = version == FORMAT_VERSION
-                ? cipherKey
-                : new SecretKeySpec(legacyKeyBytes(), "AES");
+        SecretKeySpec key = version == LEGACY_FORMAT_VERSION
+                ? new SecretKeySpec(legacyKeyBytes(), "AES")
+                : cipherKey;
         try {
-            return ProgressRecord.decode(decrypt(encrypted, nonce, key));
+            return ProgressRecord.decode(decrypt(encrypted, nonce, key), version >= FORMAT_VERSION);
         } catch (RuntimeException e) {
             return null;
         }
@@ -224,6 +232,7 @@ public class ProgressStorage {
                     readInt(props, "clicksPerPress", 1),
                     readInt(props, "autoClicker", 0),
                     readInt(props, "multiplier", 0),
+                    java.util.EnumSet.noneOf(Achievement.class),
                     languageTag(),
                     progress.getTheme().name());
         } catch (IOException e) {
@@ -416,27 +425,31 @@ public class ProgressStorage {
     }
 
     private record ProgressRecord(int clicks, int clicksPerPress, int autoClickerLevel, int multiplierLevel,
-                                  String language, String theme) {
+                                  Set<Achievement> achievements, String language, String theme) {
 
-        /** 4 int + два short-длины + контрольная сумма FNV-1a. */
-        private static final int FIXED_LENGTH = 4 * Integer.BYTES + 2 * Short.BYTES + CHECKSUM_LENGTH;
+        /** 4 int + три short-длины + контрольная сумма FNV-1a. */
+        private static final int FIXED_LENGTH = 4 * Integer.BYTES + 3 * Short.BYTES + CHECKSUM_LENGTH;
 
         byte[] encode() {
             byte[] lang = language.getBytes(StandardCharsets.UTF_8);
             byte[] themeCode = theme.getBytes(StandardCharsets.UTF_8);
-            ByteBuffer buffer = ByteBuffer.allocate(FIXED_LENGTH + lang.length + themeCode.length);
+            byte[] achievementCodes = encodeAchievements(achievements).getBytes(StandardCharsets.UTF_8);
+            ByteBuffer buffer = ByteBuffer.allocate(
+                    FIXED_LENGTH + lang.length + themeCode.length + achievementCodes.length);
             buffer.putInt(clicks);
             buffer.putInt(clicksPerPress);
             buffer.putInt(autoClickerLevel);
             buffer.putInt(multiplierLevel);
             buffer.putShort((short) lang.length).put(lang);
             buffer.putShort((short) themeCode.length).put(themeCode);
+            buffer.putShort((short) achievementCodes.length).put(achievementCodes);
             buffer.putLong(checksum(buffer.array(), buffer.position()));
             return buffer.array();
         }
 
-        static ProgressRecord decode(byte[] payload) {
-            if (payload.length < FIXED_LENGTH) {
+        static ProgressRecord decode(byte[] payload, boolean hasAchievements) {
+            int minimum = 4 * Integer.BYTES + 2 * Short.BYTES + CHECKSUM_LENGTH;
+            if (payload.length < minimum) {
                 throw new IllegalArgumentException("short payload");
             }
             ByteBuffer buffer = ByteBuffer.wrap(payload);
@@ -446,14 +459,32 @@ public class ProgressStorage {
             int multiplierLevel = buffer.getInt();
 
             int langLength = buffer.getShort() & 0xFFFF;
-            int themeLengthOffset = buffer.position() + langLength;
-            if (themeLengthOffset + Short.BYTES > payload.length - CHECKSUM_LENGTH) {
+            if (buffer.position() + langLength + Short.BYTES > payload.length - CHECKSUM_LENGTH) {
                 throw new IllegalArgumentException("bad string length");
             }
             byte[] lang = new byte[langLength];
             buffer.get(lang);
-            byte[] themeCode = new byte[buffer.getShort() & 0xFFFF];
+
+            int themeLength = buffer.getShort() & 0xFFFF;
+            if (buffer.position() + themeLength > payload.length - CHECKSUM_LENGTH) {
+                throw new IllegalArgumentException("bad theme length");
+            }
+            byte[] themeCode = new byte[themeLength];
             buffer.get(themeCode);
+
+            Set<Achievement> achievements = java.util.EnumSet.noneOf(Achievement.class);
+            if (hasAchievements) {
+                if (buffer.position() + Short.BYTES > payload.length - CHECKSUM_LENGTH) {
+                    throw new IllegalArgumentException("missing achievements length");
+                }
+                int achievementLength = buffer.getShort() & 0xFFFF;
+                if (buffer.position() + achievementLength > payload.length - CHECKSUM_LENGTH) {
+                    throw new IllegalArgumentException("bad achievements length");
+                }
+                byte[] achievementCodes = new byte[achievementLength];
+                buffer.get(achievementCodes);
+                achievements = decodeAchievements(new String(achievementCodes, StandardCharsets.UTF_8));
+            }
 
             int checksumOffset = buffer.position();
             long expected = buffer.getLong();
@@ -462,7 +493,33 @@ public class ProgressStorage {
                 throw new IllegalArgumentException("checksum mismatch");
             }
             return new ProgressRecord(clicks, clicksPerPress, autoClickerLevel, multiplierLevel,
-                    new String(lang, StandardCharsets.UTF_8), new String(themeCode, StandardCharsets.UTF_8));
+                    achievements, new String(lang, StandardCharsets.UTF_8),
+                    new String(themeCode, StandardCharsets.UTF_8));
+        }
+
+        private static String encodeAchievements(Set<Achievement> achievements) {
+            StringBuilder builder = new StringBuilder();
+            for (Achievement achievement : achievements) {
+                if (builder.length() > 0) {
+                    builder.append(',');
+                }
+                builder.append(achievement.getId());
+            }
+            return builder.toString();
+        }
+
+        private static Set<Achievement> decodeAchievements(String value) {
+            Set<Achievement> achievements = java.util.EnumSet.noneOf(Achievement.class);
+            if (value.isEmpty()) {
+                return achievements;
+            }
+            for (String id : value.split(",")) {
+                Achievement achievement = Achievement.byId(id.trim());
+                if (achievement != null) {
+                    achievements.add(achievement);
+                }
+            }
+            return achievements;
         }
 
         private static long checksum(byte[] data, int length) {

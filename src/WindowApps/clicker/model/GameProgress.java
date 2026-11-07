@@ -1,4 +1,4 @@
-package WindowApps.clicker;
+package WindowApps.clicker.model;
 
 import WindowApps.ProgressSnapshot;
 import WindowApps.Text;
@@ -6,7 +6,11 @@ import WindowApps.Theme;
 
 import javax.swing.*;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
+import java.util.function.Consumer;
 
 public class GameProgress {
 
@@ -19,8 +23,10 @@ public class GameProgress {
     private boolean paused = false;
 
     private final List<Runnable> listeners = new ArrayList<>();
+    private final Set<Achievement> unlockedAchievements = EnumSet.noneOf(Achievement.class);
+    private final List<Consumer<Achievement>> achievementListeners = new ArrayList<>();
 
-    void addListener(Runnable listener) {
+    public void addListener(Runnable listener) {
         listeners.add(listener);
     }
 
@@ -28,6 +34,19 @@ public class GameProgress {
         for (Runnable listener : listeners) {
             listener.run();
         }
+    }
+
+    /** Подписка на НОВЫЕ достижения. Вызывается только в момент получения, не при загрузке. */
+    public void addAchievementListener(Consumer<Achievement> listener) {
+        achievementListeners.add(listener);
+    }
+
+    public Set<Achievement> getUnlockedAchievements() {
+        return Collections.unmodifiableSet(unlockedAchievements);
+    }
+
+    public boolean isAchievementUnlocked(Achievement achievement) {
+        return unlockedAchievements.contains(achievement);
     }
 
     public int getClickCount() {
@@ -58,7 +77,7 @@ public class GameProgress {
         return paused;
     }
 
-    void setPaused(boolean paused) {
+    public void setPaused(boolean paused) {
         this.paused = paused;
     }
 
@@ -73,6 +92,7 @@ public class GameProgress {
         autoClickerLevel = snapshot.autoClickerLevel();
         multiplierLevel = snapshot.multiplierLevel();
         theme = snapshot.theme();
+        checkAchievements();
         hasUnsavedChanges = false;
         notifyListeners();
     }
@@ -82,8 +102,20 @@ public class GameProgress {
         this.clicksPerPress = clicksPerPress;
         this.autoClickerLevel = autoClickerLevel;
         this.multiplierLevel = multiplierLevel;
-        this.hasUnsavedChanges = false;
+        hasUnsavedChanges = false;
+        // Достижения, которые уже выполнены, но не были записаны (старый файл прогресса),
+        // добираются здесь же — ещё до подписки на уведомления, поэтому всплывать не будут.
+        checkAchievements();
+        hasUnsavedChanges = false;
         notifyListeners();
+    }
+
+    /** Восстанавливает полученные достижения из сохранения. */
+    public void restoreAchievements(Set<Achievement> achievements) {
+        unlockedAchievements.clear();
+        if (achievements != null) {
+            unlockedAchievements.addAll(achievements);
+        }
     }
 
     public void setTheme(Theme theme) {
@@ -92,6 +124,7 @@ public class GameProgress {
         }
         this.theme = theme;
         hasUnsavedChanges = true;
+        checkAchievements();
         notifyListeners();
     }
 
@@ -120,6 +153,7 @@ public class GameProgress {
             return false;
         }
         clicksPerPress++;
+        checkAchievements();
         notifyListeners();
         return true;
     }
@@ -129,6 +163,7 @@ public class GameProgress {
             return false;
         }
         autoClickerLevel++;
+        checkAchievements();
         notifyListeners();
         return true;
     }
@@ -138,20 +173,22 @@ public class GameProgress {
             return false;
         }
         multiplierLevel++;
+        checkAchievements();
         notifyListeners();
         return true;
     }
 
-    void addClicks(int amount) {
+    public void addClicks(int amount) {
         if (paused) {
             return;
         }
         clickCount += amount;
         hasUnsavedChanges = true;
+        checkAchievements();
         notifyListeners();
     }
 
-    void reset() {
+    public void reset() {
         if (paused) {
             return;
         }
@@ -160,7 +197,7 @@ public class GameProgress {
         notifyListeners();
     }
 
-    int clicksPerAction() {
+    public int clicksPerAction() {
         return clicksPerPress * (multiplierLevel + 1);
     }
 
@@ -171,6 +208,23 @@ public class GameProgress {
         clickCount -= cost;
         hasUnsavedChanges = true;
         return true;
+    }
+
+    /**
+     * Выдаёт все достижения, условие которых уже выполнено, и сообщает подписчикам только о новых.
+     * Вызывается после каждого изменения прогресса, поэтому проверка не должна быть дорогой.
+     */
+    private void checkAchievements() {
+        for (Achievement achievement : Achievement.values()) {
+            if (unlockedAchievements.contains(achievement) || !achievement.isEarned(this)) {
+                continue;
+            }
+            unlockedAchievements.add(achievement);
+            hasUnsavedChanges = true;
+            for (Consumer<Achievement> listener : achievementListeners) {
+                listener.accept(achievement);
+            }
+        }
     }
 
     public void showInsufficientFunds(JFrame owner, int cost) {

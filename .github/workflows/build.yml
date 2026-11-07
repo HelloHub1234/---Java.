@@ -31,7 +31,7 @@ jobs:
         run: |
           New-Item -ItemType Directory -Force -Path classes | Out-Null
           # Перечисляем все исходники пакета: javac не подхватывает Theme/Text/ProgressStorage автоматически
-          javac -encoding UTF-8 -d classes (Get-ChildItem src/WindowApps/*.java) (Get-ChildItem src/WindowApps/clicker/*.java)
+          javac -encoding UTF-8 -d classes (Get-ChildItem src/WindowApps/*.java) (Get-ChildItem src/WindowApps/clicker/*.java -Recurse)
           # messages*.properties читаются через ResourceBundle, поэтому должны лежать в classpath
           Copy-Item src/WindowApps/messages*.properties classes/WindowApps/
           # Иконку во вторую jar-сборку тоже кладём: её видят инструменты, читающие архив

@@ -1,4 +1,6 @@
-package WindowApps.clicker;
+package WindowApps.clicker.storage;
+
+import WindowApps.clicker.model.GameProgress;
 
 import java.nio.file.Path;
 
@@ -10,19 +12,19 @@ public class ProgressStorage {
 
     private final WindowApps.ProgressStorage store;
 
-    ProgressStorage(GameProgress progress) {
+    public ProgressStorage(GameProgress progress) {
         this.store = new WindowApps.ProgressStorage(progress);
     }
 
-    boolean save() {
+    public boolean save() {
         return store.save();
     }
 
-    void load() {
+    public void load() {
         store.load();
     }
 
-    Path getStorePath() {
+    public Path getStorePath() {
         return store.getStorePath();
     }
 }

@@ -1,4 +1,4 @@
-package WindowApps.clicker;
+package WindowApps.clicker.ui.component;
 
 import WindowApps.Basic;
 import WindowApps.Theme;

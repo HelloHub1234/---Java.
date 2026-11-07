@@ -1,7 +1,9 @@
-package WindowApps.clicker;
+package WindowApps.clicker.ui;
 
 import WindowApps.Basic;
 import WindowApps.Text;
+import WindowApps.clicker.ui.component.ClickButton;
+import WindowApps.clicker.ui.theme.ClickerTheme;
 import WindowApps.Theme;
 
 import javax.swing.*;

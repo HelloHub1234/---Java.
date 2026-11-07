@@ -3,6 +3,15 @@ package WindowApps.clicker;
 import WindowApps.Basic;
 import WindowApps.Text;
 import WindowApps.Theme;
+import WindowApps.clicker.model.GameProgress;
+import WindowApps.clicker.storage.ProgressStorage;
+import WindowApps.clicker.ui.AchievementDialog;
+import WindowApps.clicker.ui.AchievementToast;
+import WindowApps.clicker.ui.ControlPanel;
+import WindowApps.clicker.ui.CountPanel;
+import WindowApps.clicker.ui.SettingsDialog;
+import WindowApps.clicker.ui.ShopDialog;
+import WindowApps.clicker.ui.theme.ClickerTheme;
 
 import javax.swing.*;
 import java.awt.*;
@@ -40,7 +49,7 @@ public class Clicker extends Basic {
                 ClickerTheme.PANEL_PADDING.top, ClickerTheme.PANEL_PADDING.left,
                 ClickerTheme.PANEL_PADDING.bottom, ClickerTheme.PANEL_PADDING.right));
         panel.add(countPanel, BorderLayout.CENTER);
-        panel.add(new ControlPanel(this), BorderLayout.EAST);
+        panel.add(new ControlPanel(this), BorderLayout.SOUTH);
         addParticleLayer();
 
         // Эффект должен рождаться в точке клика. Ловим два источника:
@@ -59,6 +68,9 @@ public class Clicker extends Basic {
         // storage.load() идёт ПОСЛЕ сборки UI: без него игра стартует с нуля, clicker.sav не
         // читается, а hasUnsavedChanges() всегда false — поэтому при выходе прогресс терялся.
         storage.load();
+        // Подписка на достижения — только после загрузки: уже выполненные на момент старта
+        // не должны всплывать уведомлениями.
+        progress.addAchievementListener(achievement -> AchievementToast.show(frame, this, achievement));
         applyTheme(progress.getTheme());
         showCount();
         resume();
@@ -114,6 +126,17 @@ public class Clicker extends Basic {
             pause();
             try {
                 new ShopDialog(this, frame, progress, this::showCount).setVisible(true);
+            } finally {
+                if (!wasPaused) {
+                    resume();
+                }
+            }
+        });
+        actions.put(ControlPanel.ACHIEVEMENTS, () -> {
+            boolean wasPaused = progress.isPaused();
+            pause();
+            try {
+                new AchievementDialog(this, frame, progress).setVisible(true);
             } finally {
                 if (!wasPaused) {
                     resume();

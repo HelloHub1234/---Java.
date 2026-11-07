@@ -30,7 +30,7 @@ Remove-Item -Recurse -Force classes, dist -ErrorAction SilentlyContinue
 New-Item -ItemType Directory -Force -Path classes, dist | Out-Null
 
 Write-Host '== Compile' -ForegroundColor Cyan
-javac -encoding UTF-8 -d classes (Get-ChildItem src/WindowApps/*.java) (Get-ChildItem src/WindowApps/clicker/*.java)
+javac -encoding UTF-8 -d classes (Get-ChildItem src/WindowApps/*.java) (Get-ChildItem src/WindowApps/clicker/*.java -Recurse)
 if ($LASTEXITCODE -ne 0) { throw 'javac failed' }
 Copy-Item src/WindowApps/messages*.properties classes/WindowApps/
 # Icon inside the jar as well: this is what tools that read the archive (and the window itself,

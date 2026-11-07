@@ -1,7 +1,9 @@
-package WindowApps.clicker;
+package WindowApps.clicker.ui.theme;
 
 import WindowApps.Basic;
 import WindowApps.ClickSound;
+import WindowApps.clicker.ui.component.CardPanel;
+import WindowApps.clicker.ui.component.ClickButton;
 import WindowApps.Text;
 import WindowApps.Theme;
 
@@ -21,6 +23,8 @@ public final class ClickerTheme {
     public static final int AUTOCLICKER_DELAY_MS = 1000;
 
     public static final Dimension BUTTON_SIZE = new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT);
+    /** Кнопки нижней горизонтальной панели: ниже и уже вертикальных, чтобы шесть штук вставали в ряд. */
+    public static final Dimension HORIZONTAL_BUTTON_SIZE = new Dimension(172, 56);
     public static final Dimension UPGRADE_SIZE = new Dimension(540, 96);
     public static final Dimension CLICK_BUTTON_SIZE = new Dimension(360, 130);
 

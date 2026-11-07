@@ -27,7 +27,7 @@
 
 ```powershell
 New-Item -ItemType Directory -Force -Path classes | Out-Null
-javac -encoding UTF-8 -d classes (Get-ChildItem src/WindowApps/*.java) (Get-ChildItem src/WindowApps/clicker/*.java)
+javac -encoding UTF-8 -d classes (Get-ChildItem src/WindowApps/*.java) (Get-ChildItem src/WindowApps/clicker/*.java -Recurse)
 Copy-Item src/WindowApps/messages*.properties classes/WindowApps/
 java -cp classes WindowApps.clicker.Clicker
 ```
@@ -77,6 +77,12 @@ src/
     ProgressStorage.java        # бинарное хранилище прогресса
     messages*.properties        # локали: ru (default), en, de, es, fr
     clicker/                    # приложение «Кликер»
+      Clicker.java              # точка входа и сборка UI
+      model/                    # GameProgress, Achievement
+      storage/                  # обёртка над хранилищем прогресса
+      ui/                       # панели, окна, уведомление о достижении
+      ui/component/             # CardPanel, ClickButton
+      ui/theme/                 # ClickerTheme
   MyGames/                      # консольные игры
   tools/IconExport.java         # генератор assets/clicker.ico
 assets/clicker.ico              # иконка .exe
