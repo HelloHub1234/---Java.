@@ -18,6 +18,8 @@ public class ClickButton extends JButton {
     private static final int ARC = 34;
     private static final int SHIMMER_PERIOD_MS = 2600;
     private static final int SHIMMER_FRAME_MS = 33;
+    /** Блик виден только на кнопке; вне окна и при скрытом окне перерисовывать нечего. */
+    private static final int SHIMMER_IDLE_MS = 250;
 
     private final Basic owner;
     private final Timer shimmerTimer;
@@ -32,8 +34,24 @@ public class ClickButton extends JButton {
         setRolloverEnabled(true);
         setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
-        shimmerTimer = new Timer(SHIMMER_FRAME_MS, e -> repaint());
+        shimmerTimer = new Timer(SHIMMER_FRAME_MS, e -> tickShimmer());
         shimmerTimer.start();
+    }
+
+    /**
+     * Блик — украшение, а не игровой элемент: когда окно свёрнуто или кнопка не видна,
+     * таймер переходит на редкий шаг вместо 30 кадров в секунду.
+     */
+    private void tickShimmer() {
+        boolean visible = isShowing() && getWidth() > 0 && getHeight() > 0;
+        int wanted = visible ? SHIMMER_FRAME_MS : SHIMMER_IDLE_MS;
+        if (shimmerTimer.getDelay() != wanted) {
+            shimmerTimer.setDelay(wanted);
+            shimmerTimer.setInitialDelay(wanted);
+        }
+        if (visible) {
+            repaint();
+        }
     }
 
     /** Останавливает анимацию, когда кнопка больше не нужна (окно пересобирается). */

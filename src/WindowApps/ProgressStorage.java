@@ -131,6 +131,9 @@ public class ProgressStorage {
         } catch (IOException ignored) {
             // несмотря на ошибку, прогресс сброшен в памяти
         }
+        // Сначала очищаем достижения, потом состояние: setState добирает выполненные условия
+        // и уведомляет слушателей один раз. Без очистки старые достижения остались бы в памяти.
+        progress.restoreAchievements(null);
         progress.setState(0, 1, 0, 0);
         progress.markDirty();
     }

@@ -16,8 +16,8 @@
 
 ```
 src/WindowApps/                 # общий каркас (переиспользуется приложениями)
-  Basic.java                    # базовое окно: темы, кнопки, частицы, actions, restart()
-  ClickSound.java               # синтезированные звуки UI (кнопка и клик), без аудиофайлов
+  Basic.java                    # базовое окно: темы, кнопки, частицы, эффекты, actions, restart()
+  ClickSound.java               # синтезированные звуки UI (кнопка, клик, достижение, сброс), без аудиофайлов
   AppIconPainter.java           # единственный источник иконки: окно + assets/clicker.ico для .exe
   Theme.java                    # enum палитр (STANDARD, CYBERPUNK, FOREST, SOLAR) + byName()
   Text.java                     # i18n через ResourceBundle
@@ -37,6 +37,7 @@ src/WindowApps/                 # общий каркас (переисполь�
       ShopDialog.java           # окно магазина апгрейдов
       AchievementDialog.java    # окно достижений
       AchievementToast.java     # всплывающее уведомление о достижении
+      ResetCountdown.java       # окно обратного отсчёта 3-2-1 перед сбросом прогресса
       SettingsDialog.java       # окно настроек: язык и тема
       component/                # переиспользуемые визуальные компоненты
         CardPanel.java          # стеклянная карточка
@@ -57,9 +58,10 @@ README.md                       # пользовательское описан�
 ## Сборка и запуск
 
 ```powershell
-# кликер: компиляция
+# кликер: компиляция (нужны ВСЕ классы src/WindowApps, а не только Basic.java —
+# иначе javac не найдёт Theme, Text, ClickSound и т.д.)
 New-Item -ItemType Directory -Force -Path classes | Out-Null
-javac -encoding UTF-8 -d classes src/WindowApps/Basic.java (Get-ChildItem src/WindowApps/clicker/*.java -Recurse)
+javac -encoding UTF-8 -d classes (Get-ChildItem src/WindowApps/*.java) (Get-ChildItem src/WindowApps/clicker/*.java -Recurse)
 
 # Исходники компилируются без ресурсов, но для UI нужны messages*.properties в classpath:
 Copy-Item src/WindowApps/messages*.properties classes/WindowApps/
@@ -115,16 +117,28 @@ powershell -File tools/generate-icon.ps1
 - Звук — только через `WindowApps.ClickSound` (сэмплы синтезируются в памяти, файлов нет).
   Звук кнопок уже висит в `Basic.RoundedButton`, отдельный тембр главной кнопки — в `ClickerTheme.createClickButton`;
   не дублируйте `ClickSound.play()` в своих `ActionListener`, иначе будет двойной тик.
-- Частицы эффекта ставятся в точку клика: `spawnParticles(Point)` в координатах панели.
-  Точку нажатия по всему окну можно получить подпиской на `panel.addMouseListener`
-  (событие всплывает от дочерних компонентов, включая кнопки).
+  Готовые тембры: `playButton()`, `playClick()`, `playAchievement()`, `playReset()`.
+- Эффекты — методы `Basic`: `spawnParticles(Point)`, `spawnFloatingNumber(Point, String)`,
+  `spawnFireworks()`, `spawnResetWave()`, `spawnFramePulse()`. Рисуются в `ParticleLayer` поверх
+  содержимого окна, координаты — в системе панели. Точку нажатия по всему окну можно получить
+  подпиской на `panel.addMouseListener` (событие всплывает от дочерних компонентов, включая кнопки).
+- Эффекты и частицы не должны будить EDT вхолостую: таймеры запускаются при спавне и
+  останавливаются, когда список пуст; перерисовка — через `repaintOverlay()`, а не `repaint()` окна.
+  Фон окна кэшируется в `BufferedImage` и пересобирается только при смене размера или темы.
+- Сброс прогресса идёт через `ResetCountdown.show(...)`: окно отсчёта 3-2-1 с кнопкой отмены,
+  автокликер на это время замирает. Не вызывайте `storage.resetAll()` напрямую из обработчика кнопки.
 - Изменяйте `GameProgress` через его методы (они выставляют `markDirty()` и вызывают слушателей);
   UI обновляется подпиской `progress.addListener(...)` — счётчик и перезапуск автокликера подписаны там же.
 - Прогресс лежит в бинарном `clicker.sav` в `%APPDATA%\Clicker` (на не-Windows — `~/.clicker`),
   логика — в `WindowApps.ProgressStorage`. При добавлении поля обновите `ProgressRecord.encode()` /
   `decode()` и обработку в `load()`. Старый `config.properties` — только легаси-миграция, не воскрешайте его.
+- Полный сброс — `ProgressStorage.resetAll()` (удаляет `clicker.sav`, обнуляет модель и достижения
+  через `deleteStore()`); частичный — `GameProgress.reset()` (только клики).
 - Язык меняется только вместе с пересборкой окна (`Basic.restart()`): тексты уже созданных компонентов
   не обновляются. Тема применяется живьём через `Basic.setTheme(...)`.
+- Подпись под счётчиком «Автокликер: N в секунду» показывает реальную прибавку кликов
+  (`clicksPerAction() * уровень`), а не число тиков таймера. При правках формулы скорости
+  держите в синхроне `Clicker` и строку `count.hint.auto`.
 
 ## VCS: коммиты и pull request
 

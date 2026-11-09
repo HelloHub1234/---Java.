@@ -25,6 +25,8 @@ public final class ClickSound {
 
     private static Clip buttonClip;
     private static Clip clickClip;
+    private static Clip achievementClip;
+    private static Clip resetClip;
     private static boolean unavailable;
 
     private ClickSound() {
@@ -37,7 +39,7 @@ public final class ClickSound {
 
     /** Звук нажатия второстепенной кнопки. Безопасно вызывать из EDT сколько угодно раз. */
     public static void playButton() {
-        trigger(true, 880, 90, 0.14);
+        trigger(Slot.BUTTON, 880, 90, 0.14);
     }
 
     /**
@@ -45,15 +47,36 @@ public final class ClickSound {
      * от тиканья панели — это отдельное действие игрока, а не служебная кнопка.
      */
     public static void playClick() {
-        trigger(false, 420, 70, 0.20);
+        trigger(Slot.CLICK, 420, 70, 0.20);
     }
 
-    private static void trigger(boolean primary, double frequency, int durationMs, double volume) {
+    /**
+     * Награда за достижение: короткое восходящее арпеджио C-E-G-C, тише кнопок.
+     * Звук должен радовать, но не перекрывать клики, поэтому громкость ниже и хвост мягкий.
+     */
+    public static void playAchievement() {
+        trigger(Slot.ACHIEVEMENT, 0, 0, 0);
+    }
+
+    /**
+     * Сброс прогресса: нисходящий «вздох» — сигнал, что всё начинается заново.
+     * Намеренно тихий и без резкой атаки: это не награда, а подтверждение действия.
+     */
+    public static void playReset() {
+        trigger(Slot.RESET, 0, 0, 0);
+    }
+
+    /** Какой из кэшированных клипов проигрывать. */
+    private enum Slot {
+        BUTTON, CLICK, ACHIEVEMENT, RESET
+    }
+
+    private static void trigger(Slot slot, double frequency, int durationMs, double volume) {
         if (unavailable) {
             return;
         }
         try {
-            Clip target = primary ? clip(true, frequency, durationMs, volume) : clip(false, frequency, durationMs, volume);
+            Clip target = clip(slot, frequency, durationMs, volume);
             if (target == null) {
                 return;
             }
@@ -66,19 +89,28 @@ public final class ClickSound {
         }
     }
 
-    private static synchronized Clip clip(boolean primary, double frequency, int durationMs, double volume)
+    private static synchronized Clip clip(Slot slot, double frequency, int durationMs, double volume)
             throws Exception {
-        if (primary && buttonClip != null) {
-            return buttonClip;
+        Clip cached = switch (slot) {
+            case BUTTON -> buttonClip;
+            case CLICK -> clickClip;
+            case ACHIEVEMENT -> achievementClip;
+            case RESET -> resetClip;
+        };
+        if (cached != null) {
+            return cached;
         }
-        if (!primary && clickClip != null) {
-            return clickClip;
-        }
-        Clip created = open(generate(frequency, durationMs, volume));
-        if (primary) {
-            buttonClip = created;
-        } else {
-            clickClip = created;
+        byte[] pcm = switch (slot) {
+            case BUTTON, CLICK -> generate(frequency, durationMs, volume);
+            case ACHIEVEMENT -> generateChime();
+            case RESET -> generateSweep();
+        };
+        Clip created = open(pcm);
+        switch (slot) {
+            case BUTTON -> buttonClip = created;
+            case CLICK -> clickClip = created;
+            case ACHIEVEMENT -> achievementClip = created;
+            case RESET -> resetClip = created;
         }
         return created;
     }
@@ -120,13 +152,67 @@ public final class ClickSound {
         return out.toByteArray();
     }
 
+    /**
+     * Арпеджио достижения: четыре ноты C5-E5-G5-C6, каждая со своим затуханием.
+     * Ноты накладываются друг на друга — получается «звон», а не четыре отдельных пика.
+     */
+    private static byte[] generateChime() {
+        double[] notes = {523.25, 659.25, 783.99, 1046.50};
+        int noteMs = 110;
+        int tailMs = 260;
+        int totalMs = noteMs * (notes.length - 1) + tailMs;
+        int samples = (int) (SAMPLE_RATE * totalMs / 1000f);
+        ByteArrayOutputStream out = new ByteArrayOutputStream(samples * 2);
+        for (int i = 0; i < samples; i++) {
+            double t = (double) i / SAMPLE_RATE;
+            double wave = 0;
+            for (int n = 0; n < notes.length; n++) {
+                double start = n * noteMs / 1000.0;
+                if (t < start) {
+                    continue;
+                }
+                double local = t - start;
+                double envelope = Math.exp(-local * 9.0) * Math.min(1.0, local / 0.006);
+                wave += Math.sin(2 * Math.PI * notes[n] * local) * envelope;
+            }
+            // 0.09 на ноту: четыре наложенные ноты в сумме дают ~0.36 — тише кнопочного тика.
+            short value = (short) Math.round(wave * 0.09 * Short.MAX_VALUE);
+            out.write(value & 0xFF);
+            out.write((value >>> 8) & 0xFF);
+        }
+        return out.toByteArray();
+    }
+
+    /** Нисходящий свип 660 → 220 Гц: «всё сбрасывается», без резкой атаки. */
+    private static byte[] generateSweep() {
+        int durationMs = 520;
+        int samples = (int) (SAMPLE_RATE * durationMs / 1000f);
+        ByteArrayOutputStream out = new ByteArrayOutputStream(samples * 2);
+        double phase = 0;
+        for (int i = 0; i < samples; i++) {
+            double progress = (double) i / samples;
+            double frequency = 660 - 440 * progress;
+            phase += 2 * Math.PI * frequency / SAMPLE_RATE;
+            double envelope = Math.exp(-progress * 2.6) * Math.min(1.0, progress * 12);
+            double wave = Math.sin(phase) * 0.8 + Math.sin(phase * 2) * 0.2;
+            short value = (short) Math.round(wave * envelope * 0.12 * Short.MAX_VALUE);
+            out.write(value & 0xFF);
+            out.write((value >>> 8) & 0xFF);
+        }
+        return out.toByteArray();
+    }
+
     /** Отключает звук (нужно, если пользователь не хочет аудио, например в тестах). */
     static void disable() {
         unavailable = true;
         closeQuietly(buttonClip);
         closeQuietly(clickClip);
+        closeQuietly(achievementClip);
+        closeQuietly(resetClip);
         buttonClip = null;
         clickClip = null;
+        achievementClip = null;
+        resetClip = null;
     }
 
     private static void closeQuietly(Clip clip) {

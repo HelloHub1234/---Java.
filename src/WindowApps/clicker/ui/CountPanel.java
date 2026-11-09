@@ -73,21 +73,31 @@ public class CountPanel extends JPanel {
     }
 
     public void showCount(int clicks) {
-        countLabel.setText(String.valueOf(clicks));
+        String next = String.valueOf(clicks);
+        boolean changed = !next.equals(countLabel.getText());
+        countLabel.setText(next);
+        // Пульс запускаем только при реальном изменении цифры: showCount вызывается и при
+        // смене темы, и при сбросе, где анимация «толчка» не нужна.
+        if (!changed) {
+            return;
+        }
+        countLabel.beginPulse();
         if (!pulseTimer.isRunning()) {
-            countLabel.beginPulse();
             pulseTimer.start();
-        } else {
-            countLabel.beginPulse();
         }
     }
 
     public void showPerPress(int perPress) {
-        perPressLabel.setText(Text.format("count.perPress", perPress));
+        String next = Text.format("count.perPress", perPress);
+        if (next != null && !next.equals(perPressLabel.getText())) {
+            perPressLabel.setText(next);
+        }
     }
 
     public void showHint(String text) {
-        hintLabel.setText(text);
+        if (text != null && !text.equals(hintLabel.getText())) {
+            hintLabel.setText(text);
+        }
     }
 
     public void repaintTexts() {
@@ -116,15 +126,25 @@ public class CountPanel extends JPanel {
         private String text = "";
         private boolean pulsing;
         private long pulseStart;
+        private Font cachedFont;
+        private float cachedScale = 1f;
 
         CountLabel() {
             setFont(ClickerTheme.COUNT_FONT);
         }
 
         void setText(String value) {
+            if (value.equals(this.text)) {
+                // Тот же текст — пересчитывать раскладку незачем (автокликер шлёт обновления часто).
+                return;
+            }
             this.text = value;
             revalidate();
             repaint();
+        }
+
+        String getText() {
+            return text;
         }
 
         void beginPulse() {
@@ -176,7 +196,8 @@ public class CountPanel extends JPanel {
 
             Theme theme = basic.getActiveTheme();
             float scale = scale();
-            g2.setFont(getFont().deriveFont(getFont().getSize2D() * scale));
+            // deriveFont на каждом кадре создаёт новый Font — кэшируем по масштабу.
+            g2.setFont(scaledFont(scale));
             FontMetrics metrics = g2.getFontMetrics();
 
             int x = (getWidth() - metrics.stringWidth(text)) / 2;
@@ -201,6 +222,15 @@ public class CountPanel extends JPanel {
                     metrics.stringWidth(text), 4, 4, 4));
 
             g2.dispose();
+        }
+
+        /** Шрифт для текущего масштаба: пересоздаётся только при смене размера, а не каждый кадр. */
+        private Font scaledFont(float scale) {
+            if (cachedFont == null || Math.abs(cachedScale - scale) > 0.001f) {
+                cachedFont = getFont().deriveFont(getFont().getSize2D() * scale);
+                cachedScale = scale;
+            }
+            return cachedFont;
         }
     }
 }

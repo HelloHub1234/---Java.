@@ -1,6 +1,7 @@
 package WindowApps.clicker;
 
 import WindowApps.Basic;
+import WindowApps.ClickSound;
 import WindowApps.Text;
 import WindowApps.Theme;
 import WindowApps.clicker.model.GameProgress;
@@ -9,6 +10,7 @@ import WindowApps.clicker.ui.AchievementDialog;
 import WindowApps.clicker.ui.AchievementToast;
 import WindowApps.clicker.ui.ControlPanel;
 import WindowApps.clicker.ui.CountPanel;
+import WindowApps.clicker.ui.ResetCountdown;
 import WindowApps.clicker.ui.SettingsDialog;
 import WindowApps.clicker.ui.ShopDialog;
 import WindowApps.clicker.ui.theme.ClickerTheme;
@@ -70,7 +72,12 @@ public class Clicker extends Basic {
         storage.load();
         // Подписка на достижения — только после загрузки: уже выполненные на момент старта
         // не должны всплывать уведомлениями.
-        progress.addAchievementListener(achievement -> AchievementToast.show(frame, this, achievement));
+        progress.addAchievementListener(achievement -> {
+            AchievementToast.show(frame, this, achievement);
+            ClickSound.playAchievement();
+            spawnFireworks();
+            spawnFramePulse();
+        });
         applyTheme(progress.getTheme());
         showCount();
         resume();
@@ -117,8 +124,10 @@ public class Clicker extends Basic {
 
         actions.put(EXIT, this::exitApplication);
         actions.put(ControlPanel.CLICK, () -> {
-            progress.addClicks(progress.clicksPerAction());
+            int gained = progress.clicksPerAction();
+            progress.addClicks(gained);
             spawnParticles(lastClickPoint);
+            spawnFloatingNumber(lastClickPoint, "+" + gained);
         });
         actions.put(ControlPanel.SHOP, () -> {
             // на время диалога автокликер не тикает, чтобы счётчик не дёргался под модальным окном
@@ -145,9 +154,22 @@ public class Clicker extends Basic {
         });
         actions.put(ControlPanel.SETTINGS, () -> new SettingsDialog(this, frame).setVisible(true));
         actions.put(ControlPanel.RESET, () -> {
-            if (confirm(Text.get("reset.confirm"))) {
-                progress.reset();
+            if (!confirm(Text.get("reset.confirm"))) {
+                return;
             }
+            // Отсчёт 3-2-1 вместо мгновенного сброса: случайное нажатие можно отменить.
+            // Автокликер на это время замирает, чтобы счётчик не «убегал» под окном отсчёта.
+            boolean wasPaused = progress.isPaused();
+            pause();
+            ResetCountdown.show(frame, getActiveTheme(), () -> {
+                // полный сброс: клики, апгрейды и достижения — как при первом запуске
+                storage.resetAll();
+                ClickSound.playReset();
+                spawnResetWave();
+                if (!wasPaused) {
+                    resume();
+                }
+            });
         });
         actions.put(ControlPanel.SAVE, this::saveWithNotice);
 
@@ -218,7 +240,8 @@ public class Clicker extends Basic {
                 close();
             }
             case JOptionPane.NO_OPTION -> close();
-            case JOptionPane.CANCEL_OPTION -> resume(); // остаёмся в игре
+            case JOptionPane.CANCEL_OPTION -> resume(); 
+            // остаёмся в игре
         }
     }
 
@@ -231,7 +254,7 @@ public class Clicker extends Basic {
         int level = progress.getAutoClickerLevel();
         countPanel.showHint(level <= 0
                 ? Text.get("count.hint.idle")
-                : Text.format("count.hint.auto", ClickerTheme.AUTOCLICKER_DELAY_MS / level));
+                : Text.format("count.hint.auto", progress.clicksPerAction() * level));
     }
 
     private void saveWithNotice() {

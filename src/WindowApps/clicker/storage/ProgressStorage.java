@@ -24,6 +24,13 @@ public class ProgressStorage {
         store.load();
     }
 
+    /** Полный сброс: удаляет файл прогресса и обнуляет клики, апгрейды и достижения. */
+    public void resetAll() {
+        // deleteStore() сам обнуляет состояние и уведомляет слушателей — повторный
+        // progress.resetAll() давал второе уведомление и лишний пересчёт UI.
+        store.deleteStore();
+    }
+
     public Path getStorePath() {
         return store.getStorePath();
     }

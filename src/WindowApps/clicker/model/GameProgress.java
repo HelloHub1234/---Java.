@@ -102,7 +102,6 @@ public class GameProgress {
         this.clicksPerPress = clicksPerPress;
         this.autoClickerLevel = autoClickerLevel;
         this.multiplierLevel = multiplierLevel;
-        hasUnsavedChanges = false;
         // Достижения, которые уже выполнены, но не были записаны (старый файл прогресса),
         // добираются здесь же — ещё до подписки на уведомления, поэтому всплывать не будут.
         checkAchievements();
@@ -193,6 +192,20 @@ public class GameProgress {
             return;
         }
         clickCount = 0;
+        hasUnsavedChanges = true;
+        notifyListeners();
+    }
+
+    /**
+     * Полный сброс: клики, апгрейды и достижения возвращаются к стартовым значениям.
+     * Тема и язык не трогаются — это настройки интерфейса, а не прогресс.
+     */
+    public void resetAll() {
+        clickCount = 0;
+        clicksPerPress = 1;
+        autoClickerLevel = 0;
+        multiplierLevel = 0;
+        unlockedAchievements.clear();
         hasUnsavedChanges = true;
         notifyListeners();
     }

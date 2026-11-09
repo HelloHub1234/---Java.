@@ -24,6 +24,8 @@ public class Basic {
     protected static final int PARTICLE_LIFETIME_MS = 900;
     protected static final int PARTICLE_FRAME_MS = 16;
     protected static final int[] ICON_SIZES = {16, 24, 32, 48, 64, 128, 256};
+    /** Шрифт всплывающих цифр «+N»: крупный и жирный, чтобы читался на лету. */
+    private static final Font NUMBER_FONT = new Font(Font.SANS_SERIF, Font.BOLD, 26);
 
     protected JFrame frame;
     protected JPanel panel;
@@ -34,6 +36,14 @@ public class Basic {
     private final List<Particle> particles = new ArrayList<>();
     private final Random random = new Random();
     private Timer particleTimer;
+
+    /** Эффекты поверх всего окна: фейерверк достижения и волна сброса. */
+    private final List<Effect> effects = new ArrayList<>();
+    private Timer effectTimer;
+
+    /** Всплывающие цифры «+N» у курсора: живут отдельно от частиц, чтобы не мешать их лимиту. */
+    private final List<FloatingNumber> numbers = new ArrayList<>();
+    private Timer numberTimer;
 
     protected String getTitle() {
         return "Мой тестовый каркас";
@@ -58,6 +68,16 @@ public class Basic {
             particleTimer = null;
         }
         particles.clear();
+        if (effectTimer != null) {
+            effectTimer.stop();
+            effectTimer = null;
+        }
+        effects.clear();
+        if (numberTimer != null) {
+            numberTimer.stop();
+            numberTimer = null;
+        }
+        numbers.clear();
         if (frame != null) {
             frame.dispose();
             frame = null;
@@ -126,18 +146,9 @@ public class Basic {
             frame.setIconImages(createAppIcons()); // пересоздать иконки под новую тему
         }
         if (panel != null) {
+            // repaint() панели уже перерисовывает всё её дерево; отдельный обход repaintDeep
+            // дублировал каждый компонент и удваивал работу при смене темы.
             panel.repaint();
-            repaintDeep(panel);
-        }
-    }
-
-    /** Принудительная перерисовка всего дерева: кастомные компоненты сами смотрят в activeTheme. */
-    private void repaintDeep(Container container) {
-        for (Component component : container.getComponents()) {
-            component.repaint();
-            if (component instanceof Container child) {
-                repaintDeep(child);
-            }
         }
     }
 
@@ -278,6 +289,106 @@ public class Basic {
         }
     }
 
+    /**
+     * Всплывающая цифра «+N» в точке клика: поднимается вверх и тает.
+     * Слегка смещается вбок, чтобы быстрые клики не складывали цифры в одну стопку.
+     */
+    protected void spawnFloatingNumber(Point origin, String text) {
+        if (text == null || text.isEmpty()) {
+            return;
+        }
+        Point point = origin == null ? new Point(panel.getWidth() / 2, panel.getHeight() / 2) : origin;
+        double drift = (random.nextDouble() - 0.5) * 26;
+        numbers.add(new FloatingNumber(point.x + drift, point.y, text));
+        if (numberTimer == null) {
+            numberTimer = new Timer(PARTICLE_FRAME_MS, e -> tickNumbers());
+            numberTimer.start();
+        }
+    }
+
+    private void tickNumbers() {
+        long now = System.currentTimeMillis();
+        for (Iterator<FloatingNumber> it = numbers.iterator(); it.hasNext(); ) {
+            if (it.next().isFinished(now)) {
+                it.remove();
+            }
+        }
+        if (numbers.isEmpty()) {
+            numberTimer.stop();
+            numberTimer = null;
+        }
+        repaintOverlay();
+    }
+
+    /**
+     * Фейерверк по всему окну: несколько залпов из разных точек, каждый — разлёт искр
+     * с гравитацией и затуханием. Используется как награда за достижение.
+     */
+    protected void spawnFireworks() {
+        int width = Math.max(1, panel.getWidth());
+        int height = Math.max(1, panel.getHeight());
+        int bursts = 3;
+        for (int burst = 0; burst < bursts; burst++) {
+            // Залпы идут по горизонтали с разбросом, чтобы не бить в одну точку.
+            double x = width * (0.25 + 0.25 * burst) + (random.nextDouble() - 0.5) * width * 0.12;
+            double y = height * (0.22 + random.nextDouble() * 0.22);
+            effects.add(new Firework(x, y, burst * 120L));
+        }
+        startEffectTimer();
+    }
+
+    /**
+     * Волна сброса: от центра расходится кольцо, а из него вылетают искры внутрь экрана.
+     * Читается как «всё обнулилось» — без праздничности фейерверка.
+     */
+    protected void spawnResetWave() {
+        effects.add(new ResetWave(panel.getWidth() / 2.0, panel.getHeight() / 2.0));
+        startEffectTimer();
+    }
+
+    /**
+     * Пульс рамки: по периметру окна пробегает короткая вспышка обводки.
+     * Ненавязчивая награда, которая видна даже если игрок смотрит не в центр экрана.
+     */
+    protected void spawnFramePulse() {
+        effects.add(new FramePulse());
+        startEffectTimer();
+    }
+
+    private void startEffectTimer() {
+        if (effectTimer == null) {
+            effectTimer = new Timer(PARTICLE_FRAME_MS, e -> tickEffects());
+            effectTimer.start();
+        }
+    }
+
+    private void tickEffects() {
+        long now = System.currentTimeMillis();
+        for (Iterator<Effect> it = effects.iterator(); it.hasNext(); ) {
+            if (it.next().isFinished(now)) {
+                it.remove();
+            }
+        }
+        if (effects.isEmpty()) {
+            effectTimer.stop();
+            effectTimer = null;
+        }
+        repaintOverlay();
+    }
+
+    /**
+     * Перерисовка только слоя эффектов и частиц, а не всей панели.
+     * Полный repaint() заставлял заново рисовать фон, карточки и кнопки 60 раз в секунду,
+     * хотя меняются лишь искры поверх окна.
+     */
+    private void repaintOverlay() {
+        if (panel instanceof BackgroundPanel background) {
+            background.repaintOverlay();
+        } else if (panel != null) {
+            panel.repaint();
+        }
+    }
+
     /** Частицы в центре компонента — для вызовов, где конкретная точка неизвестна. */
     protected void spawnParticles(Component source) {
         Component anchor = source == null ? panel : source;
@@ -297,9 +408,7 @@ public class Basic {
             particleTimer.stop();
             particleTimer = null;
         }
-        if (panel != null) {
-            panel.repaint();
-        }
+        repaintOverlay();
     }
 
     protected static class BackgroundPanel extends JPanel {
@@ -308,6 +417,8 @@ public class Basic {
 
         /** Количество «орбов» — больших размытых пятен на фоне. */
         private static final int ORB_COUNT = 5;
+        /** Фон «дышит» медленно: 20 кадров в секунду достаточно, а нагрузка вдвое ниже. */
+        private static final int ORB_FRAME_MS = 50;
 
         private final Basic owner;
         private final float[] orbX = new float[ORB_COUNT];
@@ -317,6 +428,11 @@ public class Basic {
         private final float[] orbSpeed = new float[ORB_COUNT];
         private final Random orbRandom = new Random();
         private Timer orbTimer;
+        /** Кэш фона: градиенты и пятна пересчитываются только при смене размера или темы. */
+        private BufferedImage backgroundCache;
+        private int cachedWidth;
+        private int cachedHeight;
+        private Theme cachedTheme;
 
         protected BackgroundPanel(Basic owner) {
             this.owner = owner;
@@ -335,7 +451,7 @@ public class Basic {
             if (orbTimer != null) {
                 return;
             }
-            orbTimer = new Timer(50, e -> repaint());
+            orbTimer = new Timer(ORB_FRAME_MS, e -> repaint());
             orbTimer.start();
         }
 
@@ -345,6 +461,7 @@ public class Basic {
                 orbTimer.stop();
                 orbTimer = null;
             }
+            backgroundCache = null;
         }
 
         /**
@@ -354,26 +471,65 @@ public class Basic {
         @Override
         public void paintChildren(Graphics g) {
             super.paintChildren(g);
-            if (owner.particles.isEmpty()) {
+            if (owner.particles.isEmpty() && owner.effects.isEmpty() && owner.numbers.isEmpty()) {
                 return;
             }
             Graphics2D g2 = (Graphics2D) g.create();
             try {
                 owner.paintParticles(g2);
+                owner.paintNumbers(g2);
+                owner.paintEffects(g2);
             } finally {
                 g2.dispose();
             }
         }
 
+        /**
+         * Перерисовка только области эффектов: фон и содержимое остаются как есть,
+         * поверх них заново рисуются искры. Так кадр анимации не тянет за собой
+         * перерисовку всего окна.
+         */
+        void repaintOverlay() {
+            if (owner.particles.isEmpty() && owner.effects.isEmpty() && owner.numbers.isEmpty()) {
+                return;
+            }
+            repaint();
+        }
+
         @Override
         protected void paintComponent(Graphics g) {
             Theme theme = owner.activeTheme;
-            Graphics2D g2 = (Graphics2D) g.create();
+            int width = getWidth();
+            int height = getHeight();
+            if (width <= 0 || height <= 0) {
+                return;
+            }
+
+            // Градиент, пятна и виньетка не меняются от кадра к кадру — рисуем их один раз
+            // в буфер и дальше только копируем. Раньше каждый кадр заново считал 5 радиальных
+            // градиентов на весь экран, что и было главной нагрузкой на отрисовку.
+            if (backgroundCache == null || cachedWidth != width || cachedHeight != height
+                    || cachedTheme != theme) {
+                backgroundCache = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+                Graphics2D cache = backgroundCache.createGraphics();
+                try {
+                    paintBackground(cache, theme, width, height);
+                } finally {
+                    cache.dispose();
+                }
+                cachedWidth = width;
+                cachedHeight = height;
+                cachedTheme = theme;
+            }
+            g.drawImage(backgroundCache, 0, 0, null);
+            // super.paintComponent здесь НЕ вызывается: JPanel залил бы свой ColorUIResource-фон
+            // поверх градиента, и тема перестала бы быть видна вообще.
+        }
+
+        private void paintBackground(Graphics2D g2, Theme theme, int width, int height) {
             g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-            int width = getWidth();
-            int height = getHeight();
             g2.setPaint(new GradientPaint(0, 0, theme.getBackgroundTop(), 0, height, theme.getBackgroundBottom()));
             g2.fillRect(0, 0, width, height);
 
@@ -396,9 +552,6 @@ public class Basic {
             }
 
             paintVignette(g2, width, height);
-            g2.dispose();
-            // super.paintComponent здесь НЕ вызывается: JPanel залил бы свой ColorUIResource-фон
-            // поверх градиента, и тема перестала бы быть видна вообще.
         }
 
         /** Легкое затемнение по краям, чтобы центр композиции смотрелся выигрышнее. */
@@ -499,6 +652,257 @@ public class Basic {
             copy.fillOval(centerX - radius / 2, centerY - radius / 2, radius, radius);
         }
         copy.dispose();
+    }
+
+    /**
+     * Рисует всплывающие цифры «+N». Шрифт берётся из темы, поэтому цифра не выбивается
+     * из оформления; тёмная подложка-обводка держит читаемость на светлых темах.
+     */
+    void paintNumbers(Graphics2D g2) {
+        if (numbers.isEmpty()) {
+            return;
+        }
+        Graphics2D copy = (Graphics2D) g2.create();
+        copy.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+        copy.setFont(NUMBER_FONT);
+        long now = System.currentTimeMillis();
+        Color accent = activeTheme.getAccent();
+        Color text = activeTheme.getText();
+        for (FloatingNumber number : numbers) {
+            float alpha = number.alpha(now);
+            if (alpha <= 0f) {
+                continue;
+            }
+            int x = (int) Math.round(number.x);
+            int y = (int) Math.round(number.y - number.rise(now));
+            FontMetrics metrics = copy.getFontMetrics();
+            int drawX = x - metrics.stringWidth(number.text) / 2;
+            // Тень-обводка: два смещённых слоя вместо дорогого TextLayout с контуром.
+            copy.setColor(new Color(0, 0, 0, Math.round(110 * alpha)));
+            copy.drawString(number.text, drawX + 1, y + 2);
+            copy.setColor(new Color(accent.getRed(), accent.getGreen(), accent.getBlue(),
+                    Math.round(255 * alpha)));
+            copy.drawString(number.text, drawX, y);
+            // Светлая кромка сверху — цифра выглядит объёмной.
+            copy.setColor(new Color(text.getRed(), text.getGreen(), text.getBlue(),
+                    Math.round(90 * alpha)));
+            copy.drawString(number.text, drawX, y - 1);
+        }
+        copy.dispose();
+    }
+
+    /** Рисует эффекты (фейерверк, волна сброса) в координатах панели. */
+    void paintEffects(Graphics2D g2) {
+        if (effects.isEmpty()) {
+            return;
+        }
+        Graphics2D copy = (Graphics2D) g2.create();
+        copy.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        long now = System.currentTimeMillis();
+        for (Effect effect : effects) {
+            effect.paint(copy, now, activeTheme);
+        }
+        copy.dispose();
+    }
+
+    /** Длительный эффект поверх окна: сам знает, когда закончился, и рисует себя. */
+    private abstract static class Effect {
+
+        abstract void paint(Graphics2D g2, long now, Theme theme);
+
+        abstract boolean isFinished(long now);
+    }
+
+    /**
+     * Залп фейерверка: искры разлетаются из точки, тормозятся и падают под гравитацией.
+     * Цвета берутся из темы, поэтому эффект не выбивается из оформления.
+     */
+    private static final class Firework extends Effect {
+
+        private static final int SPARKS = 46;
+        private static final int LIFETIME_MS = 1500;
+        private static final double GRAVITY = 0.11;
+
+        private final double[] x = new double[SPARKS];
+        private final double[] y = new double[SPARKS];
+        private final double[] dx = new double[SPARKS];
+        private final double[] dy = new double[SPARKS];
+        private final long start;
+
+        Firework(double originX, double originY, long delayMs) {
+            Random random = new Random();
+            for (int i = 0; i < SPARKS; i++) {
+                double angle = random.nextDouble() * Math.PI * 2;
+                // Разная скорость у искр: залп получается «рваным», а не идеальным кругом.
+                double speed = 2.2 + random.nextDouble() * 4.6;
+                x[i] = originX;
+                y[i] = originY;
+                dx[i] = Math.cos(angle) * speed;
+                dy[i] = Math.sin(angle) * speed - 0.8;
+            }
+            start = System.currentTimeMillis() + delayMs;
+        }
+
+        @Override
+        void paint(Graphics2D g2, long now, Theme theme) {
+            long elapsed = now - start;
+            if (elapsed < 0) {
+                return;
+            }
+            float life = 1f - elapsed / (float) LIFETIME_MS;
+            if (life <= 0f) {
+                return;
+            }
+            // Позиции считаются от времени, а не накапливаются: кадры не зависят от FPS.
+            double seconds = elapsed / 1000.0;
+            Color accent = theme.getAccent();
+            Color particle = theme.getParticle();
+            int alpha = Math.round(255 * Math.min(1f, life * 1.6f));
+            for (int i = 0; i < SPARKS; i++) {
+                double px = x[i] + dx[i] * seconds * 60;
+                double py = y[i] + dy[i] * seconds * 60 + 0.5 * GRAVITY * Math.pow(seconds * 60, 2);
+                Color color = i % 3 == 0 ? particle : accent;
+                int radius = i % 4 == 0 ? 3 : 2;
+                g2.setColor(new Color(color.getRed(), color.getGreen(), color.getBlue(), Math.round(alpha * 0.30f)));
+                g2.fillOval((int) Math.round(px) - radius * 2, (int) Math.round(py) - radius * 2,
+                        radius * 4, radius * 4);
+                g2.setColor(new Color(color.getRed(), color.getGreen(), color.getBlue(), alpha));
+                g2.fillOval((int) Math.round(px) - radius, (int) Math.round(py) - radius,
+                        radius * 2, radius * 2);
+            }
+        }
+
+        @Override
+        boolean isFinished(long now) {
+            return now - start > LIFETIME_MS;
+        }
+    }
+
+    /**
+     * Волна сброса: расходящееся кольцо и гаснущая вспышка в центре.
+     * Кольцо расширяется и истончается — визуально «прогресс ушёл в ноль».
+     */
+    private static final class ResetWave extends Effect {
+
+        private static final int LIFETIME_MS = 900;
+
+        private final double centerX;
+        private final double centerY;
+        private final long start = System.currentTimeMillis();
+
+        ResetWave(double centerX, double centerY) {
+            this.centerX = centerX;
+            this.centerY = centerY;
+        }
+
+        @Override
+        void paint(Graphics2D g2, long now, Theme theme) {
+            float progress = Math.min(1f, (now - start) / (float) LIFETIME_MS);
+            float fade = 1f - progress;
+            double maxRadius = Math.hypot(centerX, centerY) * 1.05;
+            double radius = maxRadius * (1 - Math.pow(1 - progress, 3));
+            Color accent = theme.getAccent();
+
+            // Вспышка в центре: быстро гаснет, чтобы не засвечивать счётчик.
+            int flashAlpha = Math.round(70 * fade * fade);
+            if (flashAlpha > 0) {
+                g2.setColor(new Color(accent.getRed(), accent.getGreen(), accent.getBlue(), flashAlpha));
+                g2.fillOval((int) (centerX - radius * 0.35), (int) (centerY - radius * 0.35),
+                        (int) (radius * 0.7), (int) (radius * 0.7));
+            }
+
+            // Кольцо: толщина падает вместе с прозрачностью.
+            float thickness = Math.max(1f, 10f * fade);
+            g2.setColor(new Color(accent.getRed(), accent.getGreen(), accent.getBlue(),
+                    Math.round(200 * fade)));
+            g2.setStroke(new BasicStroke(thickness, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+            int r = (int) Math.round(radius);
+            g2.drawOval((int) Math.round(centerX) - r, (int) Math.round(centerY) - r, r * 2, r * 2);
+        }
+
+        @Override
+        boolean isFinished(long now) {
+            return now - start > LIFETIME_MS;
+        }
+    }
+
+    /**
+     * Пульс рамки окна: несколько контуров по периметру панели, которые расходятся
+     * от края внутрь и гаснут. Двойной «удар» (две волны с задержкой) читается как сердцебиение.
+     */
+    private static final class FramePulse extends Effect {
+
+        private static final int LIFETIME_MS = 1100;
+        private static final int WAVES = 2;
+        private static final long WAVE_DELAY_MS = 220;
+
+        private final long start = System.currentTimeMillis();
+
+        @Override
+        void paint(Graphics2D g2, long now, Theme theme) {
+            Color accent = theme.getAccent();
+            for (int wave = 0; wave < WAVES; wave++) {
+                long elapsed = now - start - wave * WAVE_DELAY_MS;
+                if (elapsed < 0) {
+                    continue;
+                }
+                float progress = Math.min(1f, elapsed / (float) LIFETIME_MS);
+                float fade = 1f - progress;
+                if (fade <= 0f) {
+                    continue;
+                }
+                // Контур уходит внутрь на 26 px и истончается: рамка «дышит», а не мигает.
+                int inset = Math.round(progress * 26);
+                float thickness = Math.max(1f, 7f * fade);
+                g2.setColor(new Color(accent.getRed(), accent.getGreen(), accent.getBlue(),
+                        Math.round(190 * fade * fade)));
+                g2.setStroke(new BasicStroke(thickness, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+                Rectangle bounds = g2.getClipBounds();
+                int width = bounds == null ? 0 : bounds.width;
+                int height = bounds == null ? 0 : bounds.height;
+                g2.drawRoundRect(inset, inset, Math.max(1, width - inset * 2 - 1),
+                        Math.max(1, height - inset * 2 - 1), 28, 28);
+            }
+        }
+
+        @Override
+        boolean isFinished(long now) {
+            return now - start > LIFETIME_MS + WAVE_DELAY_MS * (WAVES - 1);
+        }
+    }
+
+    /** Всплывающая цифра «+N»: поднимается вверх с замедлением и тает. */
+    private static final class FloatingNumber {
+
+        private static final int LIFETIME_MS = 850;
+        private static final double RISE_PX = 62;
+
+        private final double x;
+        private final double y;
+        private final String text;
+        private final long created = System.currentTimeMillis();
+
+        FloatingNumber(double x, double y, String text) {
+            this.x = x;
+            this.y = y;
+            this.text = text;
+        }
+
+        /** Текущее смещение вверх: easeOutCubic — быстро отрывается, потом плавно тормозит. */
+        private double rise(long now) {
+            double progress = Math.min(1.0, (now - created) / (double) LIFETIME_MS);
+            return RISE_PX * (1 - Math.pow(1 - progress, 3));
+        }
+
+        private float alpha(long now) {
+            float progress = Math.min(1f, (now - created) / (float) LIFETIME_MS);
+            // Держим цифру полностью видимой первую половину жизни, потом гасим.
+            return progress < 0.5f ? 1f : 1f - (progress - 0.5f) * 2f;
+        }
+
+        private boolean isFinished(long now) {
+            return now - created > LIFETIME_MS;
+        }
     }
 
     protected static class Particle {
